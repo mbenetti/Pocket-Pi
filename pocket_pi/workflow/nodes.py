@@ -662,7 +662,6 @@ class PlannerNode(Node):
         
         # 3. Setup System instructions based on tool availability (avoids contradictions)
         current_date = time.strftime("%Y-%m-%d")
-        current_time = time.strftime("%H:%M:%S")
         cwd_str = str(shared["session"].cwd)
         
         if use_tools:
@@ -684,16 +683,18 @@ Guidelines:
 - Show file paths clearly when working with files
 
 Current Date: {current_date}
-Current Time: {current_time}
 """
         else:
-            system_prompt = f"Current Working Directory: {cwd_str}\n\nYou are pocket-pi, a highly capable, helpful, and friendly assistant. Answer the user's questions clearly, directly, and concisely using direct conversational text.\n\nCurrent Date: {current_date}\nCurrent Time: {current_time}"
+            system_prompt = f"Current Working Directory: {cwd_str}\n\nYou are pocket-pi, a highly capable, helpful, and friendly assistant. Answer the user's questions clearly, directly, and concisely using direct conversational text.\n\nCurrent Date: {current_date}"
+        
+        session_id = shared["session"].get_session_name()
         
         return {
             "config": shared["config"],
             "messages": messages,
             "system_prompt": system_prompt,
-            "tools": tools_list
+            "tools": tools_list,
+            "session_id": session_id
         }
 
     def exec(self, data):
@@ -718,7 +719,8 @@ Current Time: {current_time}
                     system_prompt=data["system_prompt"],
                     tools=data["tools"],
                     thinking_level=level,
-                    thinking_budget=budget
+                    thinking_budget=budget,
+                    session_id=data.get("session_id")
                 )
                 res_queue.put(("success", response))
             except Exception as e:

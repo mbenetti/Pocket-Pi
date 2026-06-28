@@ -15,7 +15,8 @@ def call_llm(
     system_prompt: str,
     tools: list,
     thinking_level: str = "medium",
-    thinking_budget: int = 10240
+    thinking_budget: int = 10240,
+    session_id: str = None
 ) -> dict:
     """
     Unified caller for Anthropic & OpenAI supporting tool call bindings.
@@ -23,7 +24,7 @@ def call_llm(
     if provider == "anthropic":
         res = _call_anthropic(model, messages, system_prompt, tools, thinking_level, thinking_budget)
     elif provider in ("openai", "openrouter"):
-        res = _call_openai(provider, model, messages, system_prompt, tools)
+        res = _call_openai(provider, model, messages, system_prompt, tools, session_id)
     else:
         # Fallback
         raise ValueError(f"Unknown model provider: {provider}")
@@ -181,7 +182,8 @@ def _call_openai(
     model: str,
     messages: list,
     system_prompt: str,
-    tools: list
+    tools: list,
+    session_id: str = None
 ) -> dict:
     import openai
     
@@ -218,6 +220,11 @@ def _call_openai(
         "model": model,
         "messages": openai_messages,
     }
+    if provider == "openrouter":
+        params["cache_control"] = {"type": "ephemeral"}
+        if session_id:
+            params["session_id"] = session_id
+            
     if formatted_tools:
         params["tools"] = formatted_tools
         
