@@ -1,14 +1,35 @@
 import os
 import requests
+from rich.console import Console
+
+console = Console()
 
 def web_search(query: str) -> str:
     """
     Search the web using Tavily Search API.
-    Uses TAVILY_API_KEY from environment.
+    If TAVILY_API_KEY is missing, gracefully falls back to free Keyless DuckDuckGo Search!
     """
     api_key = os.environ.get("TAVILY_API_KEY")
     if not api_key:
-        return "Error: Missing TAVILY_API_KEY. Web search failed. Tell the user to run /login and select option 4 (Tavily Search) or set TAVILY_API_KEY in their environment variables. Crucial Guideline: DO NOT attempt to run alternative background bash commands, curl requests, or write python RSS search scripts to pull news or bypass this error. Warn the user immediately in direct text that real-time web search is currently disabled."
+        # Graceful Fallback: Runs Keyless DuckDuckGo Search immediately!
+        console.print("  [dim]⚠️ TAVILY_API_KEY is missing. Falling back to free Keyless DuckDuckGo...[/dim]")
+        try:
+            from duckduckgo_search import DDGS
+            with DDGS() as ddgs:
+                results = list(ddgs.text(query, max_results=5))
+            if not results:
+                return f"No keyless results found for query: '{query}'"
+                
+            output = [f"--- [DuckDuckGo Web Search Results for: {query}] ---"]
+            for idx, item in enumerate(results):
+                title = item.get("title", "No Title")
+                url_link = item.get("href", "No URL")
+                content = item.get("body", "")
+                output.append(f"[{idx + 1}] {title}\nURL: {url_link}\nSnippet: {content}\n")
+                
+            return "\n".join(output)
+        except Exception as e:
+            return f"Error executing Keyless web search fallback: {str(e)}"
         
     url = "https://api.tavily.com/search"
     payload = {
