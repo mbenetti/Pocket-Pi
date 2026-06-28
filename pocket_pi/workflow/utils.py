@@ -221,9 +221,11 @@ def _call_openai(
         "messages": openai_messages,
     }
     if provider == "openrouter":
-        params["cache_control"] = {"type": "ephemeral"}
+        params["extra_body"] = {
+            "cache_control": {"type": "ephemeral"}
+        }
         if session_id:
-            params["session_id"] = session_id
+            params["extra_body"]["session_id"] = session_id
             
     if formatted_tools:
         params["tools"] = formatted_tools
