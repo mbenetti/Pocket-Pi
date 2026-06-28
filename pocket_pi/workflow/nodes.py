@@ -18,12 +18,9 @@ from prompt_toolkit.completion import Completer, Completion
 console = Console()
 
 def get_available_skills() -> List[str]:
-    """Scans global and local skill directories and returns unique skill names."""
+    """Scans local workspace skill directories and returns unique skill names."""
     skill_dirs = [
-        Path("~/.pi/agent/skills/").expanduser(),
-        Path(".pi/skills/"),
         Path(".pocket_pi/skills/"),
-        Path("~/.agents/skills/").expanduser(),
         Path(".agents/skills/"),
     ]
     skills = []
@@ -35,12 +32,9 @@ def get_available_skills() -> List[str]:
     return sorted(list(set(skills)))
 
 def find_skill_content(skill_name: str) -> Optional[str]:
-    """Finds and reads SKILL.md under active skill directories."""
+    """Finds and reads SKILL.md under active local skill directories."""
     skill_dirs = [
-        Path("~/.pi/agent/skills/").expanduser(),
-        Path(".pi/skills/"),
         Path(".pocket_pi/skills/"),
-        Path("~/.agents/skills/").expanduser(),
         Path(".agents/skills/"),
     ]
     for base in skill_dirs:
@@ -213,10 +207,10 @@ class ConsoleInputNode(Node):
                 if skill_name == "no_skills_installed_yet":
                     console.print(Panel(
                         "[yellow]⚠️ No Active Skills Detected:[/yellow]\n\n"
-                        "pocket-pi searches for reusable, on-demand skills inside these directories:\n"
-                        "  • Global: [cyan]~/.pi/agent/skills/[/cyan] or [cyan]~/.agents/skills/[/cyan]\n"
-                        "  • Project local: [cyan].pocket_pi/skills/[/cyan] or [cyan].agents/skills/[/cyan]\n\n"
-                        "[dim]To install your first skill, simply create a folder (e.g. 'sciverse') containing a 'SKILL.md' file inside those directories![/dim]",
+                        "pocket-pi searches for reusable, on-demand skills locally inside your workspace:\n"
+                        "  • [cyan].pocket_pi/skills/[/cyan]\n"
+                        "  • [cyan].agents/skills/[/cyan]\n\n"
+                        "[dim]To install your first skill, simply create a folder (e.g. 'sciverse') containing a 'SKILL.md' file inside those subdirectories![/dim]",
                         title="[bold yellow]Skills Directory Empty[/bold yellow]",
                         border_style="yellow"
                     ))
