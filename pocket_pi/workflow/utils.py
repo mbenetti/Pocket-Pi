@@ -226,6 +226,11 @@ def _call_openai(
         }
         if session_id:
             params["extra_body"]["session_id"] = session_id
+        # Include OpenRouter rank and branding headers
+        params["extra_headers"] = {
+            "HTTP-Referer": "https://github.com/mbenetti/Pocket-Pi",
+            "X-Title": "pocket-pi"
+        }
             
     if formatted_tools:
         params["tools"] = formatted_tools
