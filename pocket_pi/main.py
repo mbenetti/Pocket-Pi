@@ -89,19 +89,31 @@ def main():
 
     # 5. Execute PocketFlow Workflow
     flow = PiAgentFlow()
-    try:
-        flow.run(shared)
-    except KeyboardInterrupt:
-        console.print(
-            "\n[bold rgb(255,100,0)]Flow execution interrupted. Exiting...[/bold rgb(255,100,0)]"
-        )
-        sys.exit(0)
-    except Exception as e:
-        console.print(f"\n[bold red]Critical Error in Flow Execution:[/bold red] {e}")
-        import traceback
-
-        traceback.print_exc()
-        sys.exit(1)
+    while not shared.get("exit"):
+        try:
+            flow.run(shared)
+        except KeyboardInterrupt:
+            console.print("\n[bold yellow]⚠️ Interrupted by User. Returning to prompt...[/bold yellow]")
+            session = shared["session"]
+            if session.current_leaf_id:
+                entry = session.entries.get(session.current_leaf_id)
+                if entry and entry.get("type") == "message":
+                    msg = entry.get("message", {})
+                    # Rollback last user turn if it was aborted before an assistant reply
+                    if msg.get("role") == "user":
+                        parent_id = entry.get("parentId")
+                        if parent_id:
+                            if session.current_leaf_id in session.entries:
+                                del session.entries[session.current_leaf_id]
+                            if session.current_leaf_id in session.entries_ordered:
+                                session.entries_ordered.remove(session.current_leaf_id)
+                            session.current_leaf_id = parent_id
+            continue
+        except Exception as e:
+            console.print(f"\n[bold red]Critical Error in Flow Execution:[/bold red] {e}")
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)
 
 
 if __name__ == "__main__":
