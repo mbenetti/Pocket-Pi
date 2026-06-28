@@ -61,6 +61,20 @@ This project is not just a simplified wrapper; it replicates the key architectur
 
 ---
 
+## 📚 Embedded Documentation System (Progressive Disclosure)
+
+To allow developers and querying LLM coding assistants to instantly master how the agent handles security, tools, sessions, and configurations, Pocket-Pi ships with its own robust, locally packaged reference library. 
+
+This documentation utilizes a **Three-Tier Progressive Disclosure** layout to ensure optimal clarity without context overload:
+1. **Abstraction Level ([`docs/index.md`](docs/index.md))**: A high-level overview detailing document locations and mapping key topics under a unified matrix.
+2. **Domain/System Level**: Deep standalone guides outlining active architectures and permission workflows chronologically:
+   - [**`docs/architecture.md`**](docs/architecture.md): Declarative state-machine nodes, routers, and cycles.
+   - [**`docs/permissions.md`**](docs/permissions.md): CWD directory security trust and permission DB.
+   - [**`docs/skills.md`**](docs/skills.md): Local modular prompt extension guidelines and paths.
+3. **Low-Level Implementation Schema ([`docs/logging.md`](docs/logging.md))**: Concrete data schemas, system log targets, and transaction layouts (e.g., JSONL models for `toolResult` and `bashExecution`).
+
+---
+
 ## 🛠️ Quick Start & Installation
 
 Ensure you have [uv](https://github.com/astral-sh/uv) installed.

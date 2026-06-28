@@ -95,4 +95,19 @@ flowchart TD
     ExecutorNode --> PlannerNode
 ```
 
+---
+
+## 📖 Self-Documenting Design & Progressive Disclosure
+
+An advanced agentic architecture should understand itself. To support developers and visiting AI engines, Pocket-Pi ships with a structured **progressive disclosure documentation** framework located in the `/docs` directory. 
+
+This model segments architectural knowledge sequentially to prevent cognitive overload:
+- **Concept Discovery**: Users start at [`docs/index.md`](../docs/index.md) to locate core components.
+- **Workflow Deep-Dives**: Detailed processes are discussed chronologically in specialized subtopics like [`docs/permissions.md`](../docs/permissions.md) and [`docs/skills.md`](../docs/skills.md).
+- **Physical Schemas**: Low-level JSON structures, folder paths, and log behaviors are localized in files such as [`docs/logging.md`](../docs/logging.md).
+
+Leveraging this structured self-documentation ensures any coding assistant working on Pocket-Pi can immediately retrieve precise system details and maintain context-aware consistency during extensions!
+
+---
+
 Get your favorite text editor ready, and let's jump into **[Module 1: PocketFlow Core Abstractions](01_pocketflow_basics.md)**! 🚀
