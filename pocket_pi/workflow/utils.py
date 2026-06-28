@@ -72,6 +72,26 @@ def _call_anthropic(
             "content": msg["content"]
         })
         
+    # Inject cache control breakpoints inside the messages list (caches conversation prefix history!)
+    if anthropic_messages:
+        last_msg = anthropic_messages[-1]
+        raw_content = last_msg["content"]
+        if isinstance(raw_content, str):
+            last_msg["content"] = [
+                {
+                    "type": "text",
+                    "text": raw_content,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ]
+        elif isinstance(raw_content, list) and len(raw_content) > 0:
+            new_content = []
+            for b in raw_content:
+                # Shallow copy to prevent mutating loaded database records
+                new_content.append(dict(b))
+            new_content[-1]["cache_control"] = {"type": "ephemeral"}
+            last_msg["content"] = new_content
+        
     formatted_tools = []
     for t in tools:
         formatted_tools.append({
@@ -80,11 +100,17 @@ def _call_anthropic(
             "input_schema": t["input_schema"]
         })
         
-    # Standard parameters
+    # Standard parameters (supports system content-blocks for prompt caching)
     params = {
         "model": model,
         "max_tokens": 40000 if "claude-3-7" in model else 4096,
-        "system": system_prompt,
+        "system": [
+            {
+                "type": "text",
+                "text": system_prompt,
+                "cache_control": {"type": "ephemeral"}
+            }
+        ],
         "messages": anthropic_messages,
         "tools": formatted_tools
     }
