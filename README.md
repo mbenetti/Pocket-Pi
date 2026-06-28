@@ -1,6 +1,6 @@
-# 🚀 Pocket-Pi: Dynamic Coding Agent
+# 🚀 Pocket-Pi: Dynamic Coding Agent (Educational Refactor)
 
-**Pocket-Pi** is a high-fidelity Python refactor of the minimal terminal coding agent harness [pi](https://github.com/earendil-works/pi), powered natively by the [PocketFlow](https://github.com/The-Pocket/PocketFlow) state-machine workflow orchestrator.
+> 🎓 **EDUCATIONAL PURPOSE NOTICE:** This project is designed and maintained strictly for **educational purposes**. The primary core goal of replicating the outstanding TUI layout, exact-replacements editing logic, and tree-based session manager of the original TypeScript-based [pi](https://github.com/earendil-works/pi) coding agent harness is to make its advanced agentic design, tool-calling loops, and contextual workflows **exceptionally easy for Python programmers ("Pythonists") to study, understand, and adapt** using Python packages and the [PocketFlow](https://github.com/The-Pocket/PocketFlow) state-machine framework.
 
 Pocket-Pi maps the core Agent-Tool execution cycle, conversational prompts, tree-based session logging, and interactive slash commands onto a beautifully typed, cyclic PocketFlow graph. It uses `rich` to deliver a gorgeous terminal user experience without unnecessary bloat.
 
