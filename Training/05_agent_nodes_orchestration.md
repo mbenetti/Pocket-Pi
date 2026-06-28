@@ -189,6 +189,39 @@ This keeps the terminal workspace gorgeously designed, easy on the eyes, and hig
 
 ---
 
+## 🧠 Spatial Awareness vs. Heuristic Project Bias
+
+An extremely interesting and advanced aspect of agent behavior in terminal environments is the distinction between **Structural CWD Injection** and **LLM Heuristic Project Bias**.
+
+### The Scenario
+Imagine you start the pocket-pi agent inside a parent container directory (e.g. `/workspaces/uv`). 
+Your `pocket_pi/main.py` correctly detects the current working directory, and injects it into the system prompt:
+```text
+Current Working Directory: /workspaces/uv
+```
+The model is now **fully aware** that its physical process path is `/workspaces/uv`. 
+
+However, imagine the user asks the model to: *"Create a new skill for yourself"*. The model runs a search probe using the `find` tool and discovers a subdirectory named `pi-universe/` which houses existing, structured folders like `pi-universe/package.json`, `pi-universe/skills/`, and `pi-universe/.pi/skills/bowser/SKILL.md`.
+
+Instead of writing the new files directly to the root `/workspaces/uv/`, the model **heuristically decides to write the files inside `pi-universe/.pi/skills/` instead!**
+
+### Why does this happen? (The Heuristic Decision)
+This is not an injection error—it is an active **reasoning bias**:
+1.  **Project Context Hierarchy**: Because `/workspaces/uv` was a completely empty parent container (lacking any structured package settings or existing skill assets), the model's attentionlayers identified `pi-universe/` as the *actual, active project* that it was brought in to assist with.
+2.  **Structural Sincerity**: The model assumed that writing files to the empty root folder would be unhelpful, as those files wouldn't be registered or imported by the subproject's active dependencies. To integrate the skill correctly, it chose to write it into the discovered project subfolder's filesystem.
+
+### How to Mitigate Project Bias in Agent Design
+When designing developer-assisting agents, we can prevent this heuristic drift using two primary methods:
+
+1.  **Strict CWD Guidelines**: Add a specific directive in the system instructions telling the model:
+    *   *`"Always default to reading, writing, and executing files within the exact, highlighted Current Working Directory (CWD) first, unless the user explicitly refers to a subproject subdirectory."`*
+2.  **Explicit User Prompts**: If the user wants to force a direct root file write, they can overrule the heuristic bias by stating the directory explicitly:
+    *   *`"Create a new skill and write it directly to the active `.pocket_pi/skills` folder relative to my CWD, do NOT use any subdirectories."`*
+
+This teaches students that **providing spatial context (CWD) is only half the battle**—guiding how the model *prioritizes* that spatial context relative to surrounding folders and repositories is what guarantees clean system-wide executions!
+
+---
+
 ## 👩‍💻 Exercises for Students
 
 1.  **Compact Trigger**: Implement a `/compact` command router inside `ConsoleInputNode.post`. It should return a custom action string `"compact"`, routing execution to `CompactNode`.
