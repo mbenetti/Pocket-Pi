@@ -65,8 +65,8 @@ Ensure you have [uv](https://github.com/astral-sh/uv) installed.
 
 ### 1. Clone and Install Dependencies
 ```bash
-git clone https://github.com/earendil-works/Pocket_pi.git
-cd Pocket_pi
+git clone https://github.com/mbenetti/Pocket-Pi.git
+cd Pocket-Pi
 uv sync
 ```
 

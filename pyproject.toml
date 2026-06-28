@@ -1,0 +1,26 @@
+[project]
+name = "pocket-pi"
+version = "0.1.0"
+description = "Pocket-Pi: A high-fidelity python refactor of the Pi terminal coding harness using the PocketFlow workflow framework"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "anthropic>=0.112.0",
+    "instructor>=1.15.3",
+    "openai>=2.44.0",
+    "pocketflow>=0.0.3",
+    "prompt-toolkit>=3.0.52",
+    "pydantic>=2.13.4",
+    "python-dotenv>=1.2.2",
+    "rich>=14.3.4",
+]
+
+[project.scripts]
+pocket-pi = "pocket_pi.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = true
