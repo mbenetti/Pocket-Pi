@@ -9,6 +9,7 @@ dependencies = [
     "duckduckgo-search>=8.1.1",
     "instructor>=1.15.3",
     "openai>=2.44.0",
+    "pillow>=12.2.0",
     "pocketflow>=0.0.3",
     "prompt-toolkit>=3.0.52",
     "pydantic>=2.13.4",

@@ -1,5 +1,7 @@
 # 🎓 Pocket-Pi: Developer Training Course
 
+![Pocket-Pi Banner](../README_banner.png)
+
 Welcome to the **Pocket-Pi Developer Training Curriculum**! This course is designed specifically for software developers and data scientists who are familiar with Python, but are new to the [PocketFlow](https://github.com/The-Pocket/PocketFlow) state-machine workflow orchestration framework.
 
 Through this series of deep-dive modules, you will learn how to build, maintain, and extend a complete, production-grade terminal coding assistant harness. We will trace every file, class, and logic boundary in **pocket-pi**—revealing how complex loops, structured LLM connectors, and filesystem operations are orchestrated beautifully using a declarative state-machine.
