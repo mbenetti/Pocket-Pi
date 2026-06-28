@@ -111,6 +111,8 @@ class ConsoleInputNode(Node):
         
         commands = ["/new", "/login", "/resume", "/model", "/session", "/compact", "/help", "/quit", "/exit", "/skill:"]
         skills = get_available_skills()
+        if not skills:
+            skills = ["no_skills_installed_yet"]
             
         self.completer = SlashCommandCompleter(commands, skills)
         self.style = Style.from_dict({
@@ -199,7 +201,23 @@ class ConsoleInputNode(Node):
                     skill_name = ""
                     
                 if not skill_name:
-                    console.print("[bold red]Please specify a skill name, e.g. /skill:sciverse[/bold red]")
+                    if not get_available_skills():
+                        # Redirect to empty skills help panel!
+                        skill_name = "no_skills_installed_yet"
+                    else:
+                        console.print("[bold red]Please specify a skill name, e.g. /skill:sciverse[/bold red]")
+                        return "input_again"
+                        
+                if skill_name == "no_skills_installed_yet":
+                    console.print(Panel(
+                        "[yellow]⚠️ No Active Skills Detected:[/yellow]\n\n"
+                        "pocket-pi searches for reusable, on-demand skills inside these directories:\n"
+                        "  • Global: [cyan]~/.pi/agent/skills/[/cyan] or [cyan]~/.agents/skills/[/cyan]\n"
+                        "  • Project local: [cyan].pocket_pi/skills/[/cyan] or [cyan].agents/skills/[/cyan]\n\n"
+                        "[dim]To install your first skill, simply create a folder (e.g. 'sciverse') containing a 'SKILL.md' file inside those directories![/dim]",
+                        title="[bold yellow]Skills Directory Empty[/bold yellow]",
+                        border_style="yellow"
+                    ))
                     return "input_again"
                     
                 skill_content = find_skill_content(skill_name)
