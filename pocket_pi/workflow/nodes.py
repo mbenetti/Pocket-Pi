@@ -131,6 +131,8 @@ class ConsoleInputNode(Node):
         super().__init__()
         from prompt_toolkit import PromptSession
         from prompt_toolkit.styles import Style
+        from prompt_toolkit.key_binding import KeyBindings
+        from prompt_toolkit.filters import completion_is_selected
         
         commands = ["/new", "/login", "/resume", "/model", "/session", "/compact", "/help", "/quit", "/exit", "/clear", "/skill:"]
         skills = get_available_skills()
@@ -141,10 +143,18 @@ class ConsoleInputNode(Node):
         self.style = Style.from_dict({
             'prompt': 'ansibrightgreen bold',
         })
+        
+        bindings = KeyBindings()
+        
+        @bindings.add('tab', filter=completion_is_selected)
+        def _(event):
+            event.current_buffer.complete_state = None
+            
         self.session = PromptSession(
             completer=self.completer,
             style=self.style,
-            complete_while_typing=True
+            key_bindings=bindings,
+            complete_while_typing=False
         )
 
     def prep(self, shared):

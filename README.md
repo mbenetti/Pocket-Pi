@@ -14,7 +14,7 @@ Pocket-Pi is designed completely on top of a state-machine topology. When you ru
 
 ```mermaid
 flowchart TD
-    ConsoleInput[1. ConsoleInputNode] --> InputRouter{Input Router}
+    ConsoleInput[1.ConsoleInputNode] --> InputRouter{Input Router}
     InputRouter -- "/quit" --> QuitNode[QuitNode]
     InputRouter -- "/compact" --> CompactNode[CompactNode]
     InputRouter -- "/model" --> ModelNode[ModelNode]
