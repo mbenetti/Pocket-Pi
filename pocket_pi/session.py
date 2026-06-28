@@ -462,3 +462,15 @@ class SessionManager:
             if entry.get("type") == "session_info":
                 return entry.get("name", "Untitled Session")
         return "Untitled Session"
+
+    def clear_history(self):
+        """
+        Resets conversation leaf back to the session_info entry (or root),
+        wiping active chat memory while preserving the session file name and identity!
+        """
+        info_id = None
+        for entry in self.entries.values():
+            if entry.get("type") == "session_info":
+                info_id = entry.get("id")
+                break
+        self.current_leaf_id = info_id

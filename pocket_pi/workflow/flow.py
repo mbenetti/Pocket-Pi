@@ -10,7 +10,8 @@ from pocket_pi.workflow.nodes import (
     CompactNode,
     PlannerNode,
     ExecutorNode,
-    QuitNode
+    QuitNode,
+    ClearNode
 )
 
 class PiAgentFlow(Flow):
@@ -23,6 +24,7 @@ class PiAgentFlow(Flow):
         resume_node = ResumeNode()
         session_node = SessionNode()
         new_session = NewSessionNode()
+        clear_node = ClearNode()
         compact_node = CompactNode()
         planner_node = PlannerNode()
         executor_node = ExecutorNode()
@@ -61,6 +63,10 @@ class PiAgentFlow(Flow):
         console_input - "new" >> new_session
         new_session - "loop" >> console_input
         new_session >> console_input
+        
+        console_input - "clear" >> clear_node
+        clear_node - "loop" >> console_input
+        clear_node >> console_input
         
         console_input - "compact" >> compact_node
         compact_node - "loop" >> console_input

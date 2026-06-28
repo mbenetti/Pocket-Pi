@@ -109,7 +109,7 @@ class ConsoleInputNode(Node):
         from prompt_toolkit import PromptSession
         from prompt_toolkit.styles import Style
         
-        commands = ["/new", "/login", "/resume", "/model", "/session", "/compact", "/help", "/quit", "/exit", "/skill:"]
+        commands = ["/new", "/login", "/resume", "/model", "/session", "/compact", "/help", "/quit", "/exit", "/clear", "/skill:"]
         skills = get_available_skills()
         if not skills:
             skills = ["no_skills_installed_yet"]
@@ -192,6 +192,8 @@ class ConsoleInputNode(Node):
                 return "session"
             elif cmd == "/new":
                 return "new"
+            elif cmd == "/clear":
+                return "clear"
             elif cmd == "/login":
                 return "login"
             elif cmd.startswith("/skill:"):
@@ -249,6 +251,19 @@ class ConsoleInputNode(Node):
         return "default"
 
 
+class ClearNode(Node):
+    """Resets conversational chat log memory block, keeping session identity intact."""
+    def prep(self, shared):
+        return shared["session"]
+    def exec(self, session):
+        session.clear_history()
+        return None
+    def post(self, shared, prep_res, exec_res):
+        console.print("[green]Conversation chat history cleared to a clean slate![/green]")
+        print_session_info(shared)
+        return "loop"
+
+
 class HelpNode(Node):
     """displays lists of command shortcuts."""
     def prep(self, shared):
@@ -261,6 +276,7 @@ class HelpNode(Node):
 | Command | Action / Description |
 |---|---|
 | `/new` | Start a completely empty, fresh coding session |
+| `/clear` | Reset active conversation chat log memory to a clean slate, preserving session identity |
 | `/login` | Interactively setup provider credentials (persisted in global settings) |
 | `/resume` | Interactively select and load a past log session |
 | `/model` | Switch model providers or specific model IDs |
