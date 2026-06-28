@@ -270,16 +270,19 @@ class LoginNode(Node):
         console.print("1. Anthropic")
         console.print("2. OpenAI")
         console.print("3. OpenRouter")
-        console.print("4. Cancel")
+        console.print("4. Tavily Search")
+        console.print("5. Cancel")
         
         try:
-            choice = input("\nSelect Provider option (1-4): ").strip()
+            choice = input("\nSelect Provider option (1-5): ").strip()
             if choice == "1":
                 provider = "anthropic"
             elif choice == "2":
                 provider = "openai"
             elif choice == "3":
                 provider = "openrouter"
+            elif choice == "4":
+                provider = "tavily"
             else:
                 return None
                 

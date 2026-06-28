@@ -8,7 +8,7 @@ def web_search(query: str) -> str:
     """
     api_key = os.environ.get("TAVILY_API_KEY")
     if not api_key:
-        return "Error: Missing TAVILY_API_KEY. Please set TAVILY_API_KEY in your .env or environment variables."
+        return "Error: Missing TAVILY_API_KEY. Web search failed. Tell the user to run /login and select option 4 (Tavily Search) or set TAVILY_API_KEY in their environment variables. Crucial Guideline: DO NOT attempt to run alternative background bash commands, curl requests, or write python RSS search scripts to pull news or bypass this error. Warn the user immediately in direct text that real-time web search is currently disabled."
         
     url = "https://api.tavily.com/search"
     payload = {
