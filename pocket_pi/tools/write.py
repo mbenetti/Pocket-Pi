@@ -7,6 +7,10 @@ def write_file(path: str, content: str, cwd: str = ".") -> str:
     Automatically creates parent directories.
     """
     abs_path = Path(cwd).resolve() / path
+    local_pocket_pi_dir = Path(cwd).resolve() / ".pocket_pi"
+    if abs_path.is_relative_to(local_pocket_pi_dir) or ".pocket_pi" in str(abs_path).lower():
+        return "Permission Denied: Modifying files in the '.pocket_pi/' configuration directory is strictly prohibited."
+        
     try:
         # Create directories if needed
         abs_path.parent.mkdir(parents=True, exist_ok=True)

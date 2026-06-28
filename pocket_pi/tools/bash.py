@@ -10,6 +10,12 @@ def execute_bash(command: str, timeout: int = None, cwd: str = ".") -> str:
     Output is truncated to the last 2000 lines or 50KB (whichever is hit first).
     If truncated, the full output is saved to a temp file.
     """
+    command_lower = command.lower()
+    if ".pocket_pi" in command_lower:
+        for indicator in [">", "rm ", "mv ", "cp ", "mkdir ", "touch ", "chmod ", "chown ", "tee "]:
+            if indicator in command_lower:
+                return "Permission Denied: Modifying files in the '.pocket_pi/' configuration directory is strictly prohibited."
+
     # Ensure CWD path is resolved
     cwd_path = str(Path(cwd).resolve())
     

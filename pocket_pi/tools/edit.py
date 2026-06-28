@@ -155,6 +155,10 @@ def edit_file(path: str, edits: List[Dict[str, str]], cwd: str = ".") -> str:
     Apply precise line edits to a file.
     """
     abs_path = Path(cwd).resolve() / path
+    local_pocket_pi_dir = Path(cwd).resolve() / ".pocket_pi"
+    if abs_path.is_relative_to(local_pocket_pi_dir) or ".pocket_pi" in str(abs_path).lower():
+        return "Permission Denied: Modifying files in the '.pocket_pi/' configuration directory is strictly prohibited."
+        
     if not abs_path.exists():
         return f"Error: File '{path}' does not exist."
         

@@ -163,6 +163,78 @@ This dual-state compiler completely resolves both tool bias and system contradic
 
 ---
 
+## 🛡️ Human-In-The-Loop Permissions (The Gatekeeper)
+
+To guarantee that the running LLM cannot perform dangerous, unprompted network requests or shell operations without the user's explicit consent, Pocket-Pi weaves a state-machine authorization hook natively into the node transition structure of **`ExecutorNode`**.
+
+Using PocketFlow's architecture, we divide validation and tool execution into distinct stages across `prep()` and `exec()`:
+
+### Step 1: `prep()` Verification & Prompting
+In `prep()`, we scan the queued tool calls before execution. 
+- For standard shell commands (`bash`), we extract commands and target hostnames using specialized regex parsers (`extract_commands_from_bash` and `extract_urls_from_bash`).
+- For standard search commands (`search`), we verify host access (e.g. `api.tavily.com`).
+
+If a command or host represents a new, unauthorized resource in the local `.pocket_pi/permissions.json` file, we halt the flow and prompt the user in the TTY terminal:
+
+```python
+    def prep(self, shared):
+        cwd = str(shared["session"].cwd)
+        tool_calls = shared["last_tool_calls"]
+        
+        gatekeeper_tool_calls = []
+        for tc in tool_calls:
+            tc_copy = dict(tc)
+            name = tc["name"]
+            args = tc["arguments"]
+            
+            # Check permissions & query user interactively if missing
+            is_allowed, reason = check_and_prompt_permissions(cwd, name, args)
+            if not is_allowed:
+                tc_copy["blocked_reason"] = reason
+            else:
+                tc_copy["blocked_reason"] = None
+                
+            gatekeeper_tool_calls.append(tc_copy)
+            
+        return {
+            "tool_calls": gatekeeper_tool_calls,
+            "cwd": cwd
+        }
+```
+
+This updates the state mapping for specific commands dynamically as `"allow"` or `"block"` in `.pocket_pi/permissions.json`.
+
+### Step 2: `exec()` Enforcement
+In `exec()`, we loop through the prepared tool calls. If a tool call was marked as blocked by the user/Gatekeeper:
+- We bypass calling `run_tool()`.
+- We immediately write a `Permission Denied` log return.
+- If not blocked, it executes as normal.
+
+```python
+    def exec(self, data):
+        results = []
+        for tc in data["tool_calls"]:
+            name = tc["name"]
+            args = tc["arguments"]
+            blocked_reason = tc.get("blocked_reason")
+            
+            if blocked_reason:
+                console.print(f"\n[bold red]🛑 Gatekeeper: Blocked Tool Call [/bold red][bold cyan]'{name}'[/bold cyan]")
+                output = blocked_reason
+            else:
+                # Run the actual tool safely
+                output = run_tool(name, args, cwd=data["cwd"])
+                
+            results.append({
+                "toolCallId": tc["id"],
+                "toolName": name,
+                "output": output
+            })
+        return results
+```
+
+---
+
 ## 🎨 Aesthetics: Muted Thoughts & Response Panels
 
 We render thinking process blocks and final responses inside styled Rich Panels, using soft-intensity colors to establish a clear visual hierachy:

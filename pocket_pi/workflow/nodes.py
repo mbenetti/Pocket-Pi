@@ -1,6 +1,8 @@
 import os
 import sys
 import time
+import re
+import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from pocketflow import Node
@@ -820,16 +822,177 @@ Current Time: {current_time}
         return "loop"
 
 
+def extract_commands_from_bash(command: str) -> List[str]:
+    parts = re.split(r' \s*&& \s*| \s*\|\| \s*| \s*; \s*| \s*\| \s*|\n', command)
+    cmds = []
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
+        subs = part.split()
+        for sub in subs:
+            sub = sub.strip()
+            if '=' in sub and not sub.startswith('-'):
+                continue
+            cmd_name = Path(sub).name
+            if cmd_name:
+                cmds.append(cmd_name)
+                break
+    return sorted(list(set(cmds)))
+
+def extract_urls_from_bash(command: str) -> List[str]:
+    from urllib.parse import urlparse
+    pattern = r'https?://[^\s\'"]+'
+    urls = re.findall(pattern, command)
+    hosts = []
+    for u in urls:
+        try:
+            parsed = urlparse(u)
+            if parsed.netloc:
+                hosts.append(parsed.netloc)
+        except Exception:
+            pass
+    return sorted(list(set(hosts)))
+
+def prompt_gatekeeper_choice(category: str, item: str) -> str:
+    console.print("\n[bold yellow]┌──────────────────────────────────────────────────────────┐[/bold yellow]")
+    console.print(f"[bold yellow]│[/bold yellow] 🛎️  [bold yellow]Pocket-Pi Gatekeeper: Permission Request[/bold yellow]")
+    console.print("[bold yellow]│[/bold yellow]")
+    console.print(f"[bold yellow]│[/bold yellow]  • Type: [cyan]{category}[/cyan]")
+    console.print(f"[bold yellow]│[/bold yellow]  • Resource: [cyan]{item}[/cyan]")
+    console.print("[bold yellow]│[/bold yellow]")
+    console.print("[bold yellow]│[/bold yellow]  How would you like to handle this request?")
+    console.print("[bold yellow]│[/bold yellow]  [bold rgb(100,255,100)]y[/bold rgb(100,255,100)] = Allow once")
+    console.print("[bold yellow]│[/bold yellow]  [bold rgb(0,255,0)]a[/bold rgb(0,255,0)] = Always allow in this project")
+    console.print("[bold yellow]│[/bold yellow]  [bold red]n[/bold red] = Block once")
+    console.print("[bold yellow]│[/bold yellow]  [bold rgb(255,50,50)]b[/bold rgb(255,50,50)] = Always block in this project")
+    console.print("[bold yellow]└──────────────────────────────────────────────────────────┘[/bold yellow]")
+    
+    if not sys.stdin.isatty():
+        console.print("[yellow]Non-interactive terminal detected. Defaulting to: Block once.[/yellow]")
+        return "block_once"
+        
+    while True:
+        try:
+            choice = input("Select option (y/a/n/b): ").strip().lower()
+            if choice == 'y':
+                return "allow_once"
+            elif choice == 'a':
+                return "always_allow"
+            elif choice == 'n':
+                return "block_once"
+            elif choice == 'b':
+                return "always_block"
+        except (KeyboardInterrupt, EOFError):
+            console.print("\n[yellow]Interrupted. Defaulting to: Block once.[/yellow]")
+            return "block_once"
+
+def save_permissions(perm_file: Path, perms: dict):
+    try:
+        with open(perm_file, "w", encoding="utf-8") as f:
+            json.dump(perms, f, indent=2)
+    except Exception as e:
+        console.print(f"[red]Error saving permissions database: {e}[/red]")
+
+def check_and_prompt_permissions(cwd: str, name: str, args: dict) -> Tuple[bool, str]:
+    local_dir = Path(cwd).resolve() / ".pocket_pi"
+    local_dir.mkdir(parents=True, exist_ok=True)
+    perm_file = local_dir / "permissions.json"
+    
+    perms = {"commands": {}, "urls": {}}
+    if perm_file.exists():
+        try:
+            with open(perm_file, "r", encoding="utf-8") as f:
+                perms = json.load(f)
+                if "commands" not in perms:
+                    perms["commands"] = {}
+                if "urls" not in perms:
+                    perms["urls"] = {}
+        except Exception:
+            pass
+            
+    commands_to_check = []
+    urls_to_check = []
+    
+    if name == "bash":
+        cmd_str = args.get("command", "")
+        commands_to_check = extract_commands_from_bash(cmd_str)
+        urls_to_check = extract_urls_from_bash(cmd_str)
+    elif name == "search":
+        urls_to_check = ["api.tavily.com"]
+        
+    for cmd in commands_to_check:
+        status = perms["commands"].get(cmd)
+        if status == "block":
+            return False, f"Permission Denied: Command '{cmd}' is blocked in this project."
+        elif status == "allow":
+            continue
+        else:
+            decision = prompt_gatekeeper_choice("Command", cmd)
+            if decision == "allow_once":
+                continue
+            elif decision == "always_allow":
+                perms["commands"][cmd] = "allow"
+                save_permissions(perm_file, perms)
+                continue
+            elif decision == "block_once":
+                return False, f"Permission Denied: Execution of command '{cmd}' was blocked by the user."
+            elif decision == "always_block":
+                perms["commands"][cmd] = "block"
+                save_permissions(perm_file, perms)
+                return False, f"Permission Denied: Command '{cmd}' is blocked in this project."
+
+    for url in urls_to_check:
+        status = perms["urls"].get(url)
+        if status == "block":
+            return False, f"Permission Denied: Access to url/host '{url}' is blocked in this project."
+        elif status == "allow":
+            continue
+        else:
+            decision = prompt_gatekeeper_choice("URL", url)
+            if decision == "allow_once":
+                continue
+            elif decision == "always_allow":
+                perms["urls"][url] = "allow"
+                save_permissions(perm_file, perms)
+                continue
+            elif decision == "block_once":
+                return False, f"Permission Denied: Access to url/host '{url}' was blocked by the user."
+            elif decision == "always_block":
+                perms["urls"][url] = "block"
+                save_permissions(perm_file, perms)
+                return False, f"Permission Denied: Access to url/host '{url}' is blocked in this project."
+                
+    return True, ""
+
+
 class ExecutorNode(Node):
     """
     Tool execution runner. Loops over last_tool_calls, compiles execution results,
     writes them to the session tree logs, and routes back to the planner.
     """
     def prep(self, shared):
-        log_debug("[ExecutorNode] Preparing tool execution environment...")
+        log_debug("[ExecutorNode] Preparing tool execution environment with Gatekeeper...")
+        cwd = str(shared["session"].cwd)
+        tool_calls = shared["last_tool_calls"]
+        
+        gatekeeper_tool_calls = []
+        for tc in tool_calls:
+            tc_copy = dict(tc)
+            name = tc["name"]
+            args = tc["arguments"]
+            
+            is_allowed, reason = check_and_prompt_permissions(cwd, name, args)
+            if not is_allowed:
+                tc_copy["blocked_reason"] = reason
+            else:
+                tc_copy["blocked_reason"] = None
+                
+            gatekeeper_tool_calls.append(tc_copy)
+            
         return {
-            "tool_calls": shared["last_tool_calls"],
-            "cwd": str(shared["session"].cwd)
+            "tool_calls": gatekeeper_tool_calls,
+            "cwd": cwd
         }
 
     def exec(self, data):
@@ -838,22 +1001,25 @@ class ExecutorNode(Node):
             name = tc["name"]
             args = tc["arguments"]
             tc_id = tc["id"]
+            blocked_reason = tc.get("blocked_reason")
             
-            console.print(f"\n[cyan]🛠️ Calling Tool:[/cyan] [bold]{name}[/bold](" + ", ".join([f"{k}={repr(v)}" for k, v in args.items()]) + ")")
-            
-            # Execute tool safely
-            output = run_tool(name, args, cwd=data["cwd"])
-            
-            # Compute sizes and lines
+            if blocked_reason:
+                console.print(f"\n[bold red]🛑 Gatekeeper: Blocked Tool Call [/bold red][bold cyan]'{name}'[/bold cyan]")
+                output = blocked_reason
+            else:
+                console.print(f"\n[cyan]🛠️ Calling Tool:[/cyan] [bold]{name}[/bold](" + ", ".join([f"{k}={repr(v)}" for k, v in args.items()]) + ")")
+                output = run_tool(name, args, cwd=data["cwd"])
+                
             lines_list = output.splitlines()
             line_count = len(lines_list)
             char_count = len(output)
             size_kb = round(char_count / 1024, 1)
             
-            # Print compact single-line indicator representing tool status (hidden by default!)
-            console.print(f"  [bold green]✔[/bold green] [bold cyan]{name}[/bold cyan] completed. Size: [cyan]{size_kb} KB[/cyan] | Lines: [cyan]{line_count}[/cyan]")
-            
-            # Log full details cleanly in our background debug log file for advanced references
+            if blocked_reason:
+                console.print(f"  [bold red]✘[/bold red] [bold red]{name}[/bold red] blocked by Gatekeeper.")
+            else:
+                console.print(f"  [bold green]✔[/bold green] [bold cyan]{name}[/bold cyan] completed. Size: [cyan]{size_kb} KB[/cyan] | Lines: [cyan]{line_count}[/cyan]")
+                
             log_debug(f"[ExecutorNode] Tool '{name}' results:\n{output}\n" + "-"*40)
             
             results.append({
