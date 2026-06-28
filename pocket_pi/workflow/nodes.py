@@ -317,6 +317,8 @@ class HelpNode(Node):
 | `/compact` | Summarize earlier messages manually to save context window |
 | `/quit`, `/exit` | Exit the pocket-pi terminal loop gracefully |
 | `/help` | Display this helpful table |
+
+💡 **Pro-Tip**: Comprehensive developer documentation covering architecture, logging formats, trust systems, and custom skills is shipped directly with the agent inside the `docs/` directory (e.g., `docs/architecture.md`, `docs/permissions.md`, `docs/logging.md`, `docs/skills.md`).
 """
         return help_text
         
