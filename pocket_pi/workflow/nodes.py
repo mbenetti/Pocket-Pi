@@ -14,6 +14,35 @@ from pocket_pi.session import SessionManager
 from pocket_pi.tools import run_tool, TOOLS_SCHEMA
 from pocket_pi.workflow.utils import call_llm
 from prompt_toolkit.completion import Completer, Completion
+from rich.spinner import SPINNERS
+
+SPINNERS["pocket"] = {
+    "interval": 100,  # Interval in milliseconds
+    "frames": [
+        "\033[90m[\033[91m○\033[90m       ]\033[0m",
+        "\033[90m[\033[31m○\033[91m○\033[90m      ]\033[0m",
+        "\033[90m[\033[91m○\033[31m○\033[91m○\033[90m     ]\033[0m",
+        "\033[90m[ \033[91m○\033[31m○\033[91m○\033[90m    ]\033[0m",
+        "\033[90m[  \033[91m○\033[31m○\033[91m○\033[90m   ]\033[0m",
+        "\033[90m[   \033[91m○\033[31m○\033[91m○\033[90m  ]\033[0m",
+        "\033[90m[    \033[91m○\033[31m○\033[91m○\033[90m ]\033[0m",
+        "\033[90m[     \033[91m○\033[31m○\033[91m○\033[90m]\033[0m",
+        "\033[90m[      \033[91m○\033[31m○\033[90m]\033[0m",
+        "\033[90m[       \033[91m○\033[90m]\033[0m",
+        "\033[90m[        ]\033[0m",
+        "\033[90m[       \033[91m○\033[90m]\033[0m",
+        "\033[90m[      \033[31m○\033[91m○\033[90m]\033[0m",
+        "\033[90m[     \033[91m○\033[31m○\033[91m○\033[90m]\033[0m",
+        "\033[90m[    \033[91m○\033[31m○\033[91m○\033[90m ]\033[0m",
+        "\033[90m[   \033[91m○\033[31m○\033[91m○\033[90m  ]\033[0m",
+        "\033[90m[  \033[91m○\033[31m○\033[91m○\033[90m   ]\033[0m",
+        "\033[90m[ \033[91m○\033[31m○\033[91m○\033[90m    ]\033[0m",
+        "\033[90m[\033[91m○\033[31m○\033[91m○\033[90m     ]\033[0m",
+        "\033[90m[\033[31m○\033[91m○\033[90m      ]\033[0m",
+        "\033[90m[\033[91m○\033[90m       ]\033[0m",
+        "\033[90m[        ]\033[0m",
+    ]
+}
 
 console = Console()
 
@@ -680,16 +709,18 @@ Current Time: {current_time}
             tty.setcbreak(fd) # Enable instant key capturing (no ENTER required!)
             
         try:
-            while t.is_alive():
-                if fd:
-                    # Non-blocking search for single-key inputs (Escape or Ctrl+C)
-                    r, _, _ = select.select([sys.stdin], [], [], 0.05)
-                    if r:
-                        char = sys.stdin.read(1)
-                        if char == "\x1b" or char == "\x03": # \x1b is Escape, \x03 is Ctrl+C
-                            raise KeyboardInterrupt()
-                else:
-                    time.sleep(0.05)
+            status_text = f"[dim italic]pocket-pi is thinking ({provider}/{model})...[/dim italic]"
+            with console.status(status_text, spinner="pocket"):
+                while t.is_alive():
+                    if fd:
+                        # Non-blocking search for single-key inputs (Escape or Ctrl+C)
+                        r, _, _ = select.select([sys.stdin], [], [], 0.05)
+                        if r:
+                            char = sys.stdin.read(1)
+                            if char == "\x1b" or char == "\x03": # \x1b is Escape, \x03 is Ctrl+C
+                                raise KeyboardInterrupt()
+                    else:
+                        time.sleep(0.05)
         finally:
             # ALWAYS restore terminal settings to prevent cursor and stdin locks!
             if fd and old_settings:
