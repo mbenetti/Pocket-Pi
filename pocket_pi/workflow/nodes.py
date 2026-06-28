@@ -855,18 +855,26 @@ def extract_urls_from_bash(command: str) -> List[str]:
     return sorted(list(set(hosts)))
 
 def prompt_gatekeeper_choice(category: str, item: str) -> str:
-    console.print("\n[bold yellow]┌──────────────────────────────────────────────────────────┐[/bold yellow]")
-    console.print(f"[bold yellow]│[/bold yellow] 🛎️  [bold yellow]Pocket-Pi Gatekeeper: Permission Request[/bold yellow]")
-    console.print("[bold yellow]│[/bold yellow]")
-    console.print(f"[bold yellow]│[/bold yellow]  • Type: [cyan]{category}[/cyan]")
-    console.print(f"[bold yellow]│[/bold yellow]  • Resource: [cyan]{item}[/cyan]")
-    console.print("[bold yellow]│[/bold yellow]")
-    console.print("[bold yellow]│[/bold yellow]  How would you like to handle this request?")
-    console.print("[bold yellow]│[/bold yellow]  [bold rgb(100,255,100)]y[/bold rgb(100,255,100)] = Allow once")
-    console.print("[bold yellow]│[/bold yellow]  [bold rgb(0,255,0)]a[/bold rgb(0,255,0)] = Always allow in this project")
-    console.print("[bold yellow]│[/bold yellow]  [bold red]n[/bold red] = Block once")
-    console.print("[bold yellow]│[/bold yellow]  [bold rgb(255,50,50)]b[/bold rgb(255,50,50)] = Always block in this project")
-    console.print("[bold yellow]└──────────────────────────────────────────────────────────┘[/bold yellow]")
+    prompt_lines = [
+        f" • [bold]Type:[/bold] [cyan]{category}[/cyan]",
+        f" • [bold]Resource:[/bold] [cyan]{item}[/cyan]",
+        "",
+        " [bold]How would you like to handle this request?[/bold]",
+        " [bold green]y[/bold] = Allow once",
+        " [bold green]a[/bold] = Always allow in this project",
+        " [bold red]n[/bold] = Block once",
+        " [bold red]b[/bold] = Always block in this project",
+    ]
+    panel_content = "\n".join(prompt_lines)
+    
+    console.print()
+    console.print(Panel(
+        panel_content,
+        title="[bold yellow]🛎️  Gatekeeper Permission Request[/bold yellow]",
+        title_align="left",
+        border_style="yellow",
+        expand=False
+    ))
     
     if not sys.stdin.isatty():
         console.print("[yellow]Non-interactive terminal detected. Defaulting to: Block once.[/yellow]")

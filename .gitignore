@@ -16,3 +16,7 @@ wheels/
 # Environment variables
 .env
 .env.*
+
+# Local Agent config and permissions
+.pocket_pi/settings.json
+.pocket_pi/permissions.json
