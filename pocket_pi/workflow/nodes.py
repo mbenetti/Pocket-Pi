@@ -614,19 +614,45 @@ Current Time: {current_time}
         level = data["config"].thinking_level
         
         log_debug(f"[PlannerNode] Querying LLM Provider: {provider}/{model}...")
-        # Invoke standard API caller bindings with tools schema
-        response = call_llm(
-            provider=provider,
-            model=model,
-            messages=data["messages"],
-            system_prompt=data["system_prompt"],
-            tools=data["tools"],
-            thinking_level=level,
-            thinking_budget=budget
-        )
-        return response
+        try:
+            # Invoke standard API caller bindings with tools schema
+            response = call_llm(
+                provider=provider,
+                model=model,
+                messages=data["messages"],
+                system_prompt=data["system_prompt"],
+                tools=data["tools"],
+                thinking_level=level,
+                thinking_budget=budget
+            )
+            return response
+        except ValueError as e:
+            return {"error": str(e)}
+        except Exception as e:
+            return {"error": f"LLM execution failed: {str(e)}"}
 
     def post(self, shared, prep_res, result):
+        if "error" in result:
+            # Clean up the orphaned user message from the JSONL tree so it stays unpolluted
+            session = shared["session"]
+            if session.current_leaf_id:
+                parent_id = session.entries.get(session.current_leaf_id, {}).get("parentId")
+                if parent_id:
+                    if session.current_leaf_id in session.entries:
+                        del session.entries[session.current_leaf_id]
+                    if session.current_leaf_id in session.entries_ordered:
+                        session.entries_ordered.remove(session.current_leaf_id)
+                    session.current_leaf_id = parent_id
+            
+            # Print beautiful prominent red connection warning
+            console.print(Panel(
+                f"[bold red]⚠️ Connection Failed:[/bold red] {result['error']}",
+                title="[bold red]API Error[/bold red]",
+                border_style="red"
+            ))
+            log_debug(f"[PlannerNode] Connection failure: {result['error']}. Routing back to prompt loop.")
+            return "loop"
+
         # Displays thinking block beautifully (less intense gray, dim borders)
         if result.get("thinking"):
             thinking_content = result["thinking"].strip()
