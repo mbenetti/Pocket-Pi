@@ -645,22 +645,64 @@ Current Time: {current_time}
         level = data["config"].thinking_level
         
         log_debug(f"[PlannerNode] Querying LLM Provider: {provider}/{model}...")
+        
+        import threading
+        import queue
+        
+        res_queue = queue.Queue()
+        
+        def run_query():
+            try:
+                response = call_llm(
+                    provider=provider,
+                    model=model,
+                    messages=data["messages"],
+                    system_prompt=data["system_prompt"],
+                    tools=data["tools"],
+                    thinking_level=level,
+                    thinking_budget=budget
+                )
+                res_queue.put(("success", response))
+            except Exception as e:
+                res_queue.put(("error", str(e)))
+                
+        # Start background LLM thread
+        t = threading.Thread(target=run_query, daemon=True)
+        t.start()
+        
+        import select
+        import tty
+        import termios
+        
+        fd = sys.stdin.fileno() if sys.stdin.isatty() else None
+        old_settings = termios.tcgetattr(fd) if fd else None
+        if fd:
+            tty.setcbreak(fd) # Enable instant key capturing (no ENTER required!)
+            
         try:
-            # Invoke standard API caller bindings with tools schema
-            response = call_llm(
-                provider=provider,
-                model=model,
-                messages=data["messages"],
-                system_prompt=data["system_prompt"],
-                tools=data["tools"],
-                thinking_level=level,
-                thinking_budget=budget
-            )
-            return response
-        except ValueError as e:
-            return {"error": str(e)}
-        except Exception as e:
-            return {"error": f"LLM execution failed: {str(e)}"}
+            while t.is_alive():
+                if fd:
+                    # Non-blocking search for single-key inputs (Escape or Ctrl+C)
+                    r, _, _ = select.select([sys.stdin], [], [], 0.05)
+                    if r:
+                        char = sys.stdin.read(1)
+                        if char == "\x1b" or char == "\x03": # \x1b is Escape, \x03 is Ctrl+C
+                            raise KeyboardInterrupt()
+                else:
+                    time.sleep(0.05)
+        finally:
+            # ALWAYS restore terminal settings to prevent cursor and stdin locks!
+            if fd and old_settings:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+                
+        try:
+            status, res = res_queue.get_nowait()
+            if status == "success":
+                return res
+            else:
+                return {"error": res}
+        except queue.Empty:
+            raise KeyboardInterrupt()
 
     def post(self, shared, prep_res, result):
         if "error" in result:
