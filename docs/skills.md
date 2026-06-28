@@ -25,10 +25,15 @@ Each skill inside these folders represents its own isolated directory named afte
 
 ## ⚙️ Loading and Injecting Skills in Conversations
 
-Skills are loaded using the direct slash command **`/skill:<skill_name>`** (e.g., `/skill:grill-me`). 
+Skills are loaded using the direct slash command **`/skills:<skill_name>`** or **`/skill:<skill_name>`** (e.g., `/skills:grill-me`).
+
+### ⚡ Ergonomic Tab Completion
+When entering `/` inside the terminal, pocket-pi displays the list of all available commands *automatically*. You can use the **Up/Down arrow keys** to navigate and find `/skills:`, then hit **Tab** to select/complete it.
+
+Once selected, the input becomes `/skills:` and instantly displays all locally available skill options in the dropdown. Simply navigate to the desired skill with **arrow keys**, hit **Tab** to select it, and you can immediately continue typing parameters or prompt details on the same line (separating arguments with a space) before hitting **Enter** to submit!
 
 ### 1. Verification & Matching
-When a `/skill:<skill_name>` command is inputted:
+When a skill command is inputted:
 1.  The `ConsoleInputNode` checks whether `<skill_name>` exists in the matched scan folders.
 2.  If the skill directory is not found, the agent displays a list of detected local skills or guidance on how to initialize one.
 3.  If found, the content of `SKILL.md` is loaded.
@@ -67,4 +72,4 @@ You are a senior frontend engineer specializing in React, Next.js, and TypeScrip
 - Ensure strict type-safety with zero 'any' assertions.
 ```
 
-Once saved, the skill will instantly appear in the `/skill:` auto-completer when you press `Tab`, and can be loaded dynamically into any active chat session!
+Once saved, the skill will instantly appear in the `/skills` auto-completer when you type `/` or `/skills`, and can be loaded dynamically into any active chat session!

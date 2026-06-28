@@ -87,8 +87,9 @@ class SlashCommandCompleter(Completer):
     """
     Custom Completer that:
     1. Only triggers if the text starts with '/'
-    2. Only shows options if the cursor is in the first word
-    3. Implements progressive multi-stage completions for skills
+    2. Implements progressive multi-stage completions for skills with the colon separator format
+       (supports "/skills:<skill_name>" and "/skill:<skill_name>")
+    3. Hides completions once a skill is selected so parameters can be free-typed.
     """
     def __init__(self, commands, skills):
         self.commands = commands
@@ -100,19 +101,25 @@ class SlashCommandCompleter(Completer):
             return
             
         before = document.text_before_cursor
-        if " " in before:
-            # Past first command word, disable dropdown
-            return
-            
-        # Progressive Completion for skills
-        if before.startswith("/skill:"):
-            typed_part = before[len("/skill:"):]
+        
+        # Check if we are completing a skill name.
+        # This occurs if before starts with /skills: or /skill:
+        # e.g., "/skills:" or "/skill:se"
+        skill_prefix_match = re.match(r"^/skills?:([^\s]*)$", before, re.IGNORECASE)
+        
+        if skill_prefix_match:
+            typed_part = skill_prefix_match.group(1).lower()
             for skill in self.skills:
-                full_option = f"/skill:{skill}"
-                if skill.startswith(typed_part):
-                    yield Completion(full_option, start_position=-len(before))
+                if skill.lower().startswith(typed_part):
+                    # Yield without a trailing space so the completed text remains exactly /skills:search
+                    yield Completion(skill, start_position=-len(typed_part))
         else:
-            # Standard command completions (includes "/skill:" as a single option)
+            # If there's a space in the word before the cursor, we are probably
+            # typing arguments or parameters, so we do not show command completions anymore.
+            if " " in before:
+                return
+                
+            # Standard command completions
             for cmd in self.commands:
                 if cmd.startswith(before):
                     yield Completion(cmd, start_position=-len(before))
@@ -136,7 +143,7 @@ class ConsoleInputNode(Node):
         from prompt_toolkit.key_binding import KeyBindings
         from prompt_toolkit.filters import completion_is_selected
         
-        commands = ["/new", "/login", "/resume", "/model", "/session", "/compact", "/help", "/quit", "/exit", "/clear", "/skill:"]
+        commands = ["/new", "/login", "/resume", "/model", "/session", "/compact", "/help", "/quit", "/exit", "/clear", "/skills:", "/skill:"]
         skills = get_available_skills()
         if not skills:
             skills = ["no_skills_installed_yet"]
@@ -156,7 +163,7 @@ class ConsoleInputNode(Node):
             completer=self.completer,
             style=self.style,
             key_bindings=bindings,
-            complete_while_typing=False
+            complete_while_typing=True
         )
 
     def prep(self, shared):
@@ -231,30 +238,38 @@ class ConsoleInputNode(Node):
                 return "clear"
             elif cmd == "/login":
                 return "login"
-            elif cmd.startswith("/skill:"):
-                try:
-                    skill_name = cmd.split(":")[1].strip()
-                except IndexError:
-                    skill_name = ""
-                    
-                if not skill_name:
-                    if not get_available_skills():
-                        # Redirect to empty skills help panel!
-                        skill_name = "no_skills_installed_yet"
+            elif cmd.startswith("/skill") or cmd.startswith("/skills"):
+                # Parse using regex to handle space-separated or colon-separated skill names and parameters.
+                # Examples:
+                # - /skills sciverse find papers
+                # - /skill:sciverse find papers
+                # - /skills sciverse
+                match = re.match(r"^/skills?(?::|\s+)([^\s:]+)(?:\s+(.*))?$", user_input, re.IGNORECASE)
+                if match:
+                    skill_name = match.group(1).strip()
+                    arguments = match.group(2).strip() if match.group(2) else ""
+                else:
+                    # User typed /skills or /skill alone without a skill name
+                    skills = get_available_skills()
+                    if not skills:
+                        console.print(Panel(
+                            "[yellow]⚠️ No Active Skills Detected:[/yellow]\n\n"
+                            "pocket-pi searches for reusable, on-demand skills locally inside your workspace:\n"
+                            "  • [cyan].pocket_pi/skills/[/cyan]\n"
+                            "  • [cyan].agents/skills/[/cyan]\n\n"
+                            "[dim]To install your first skill, simply create a folder (e.g. 'sciverse') containing a 'SKILL.md' file inside those subdirectories![/dim]",
+                            title="[bold yellow]Skills Directory Empty[/bold yellow]",
+                            border_style="yellow"
+                        ))
                     else:
-                        console.print("[bold red]Please specify a skill name, e.g. /skill:sciverse[/bold red]")
-                        return "input_again"
-                        
-                if skill_name == "no_skills_installed_yet":
-                    console.print(Panel(
-                        "[yellow]⚠️ No Active Skills Detected:[/yellow]\n\n"
-                        "pocket-pi searches for reusable, on-demand skills locally inside your workspace:\n"
-                        "  • [cyan].pocket_pi/skills/[/cyan]\n"
-                        "  • [cyan].agents/skills/[/cyan]\n\n"
-                        "[dim]To install your first skill, simply create a folder (e.g. 'sciverse') containing a 'SKILL.md' file inside those subdirectories![/dim]",
-                        title="[bold yellow]Skills Directory Empty[/bold yellow]",
-                        border_style="yellow"
-                    ))
+                        styled_skills = ", ".join([f"[cyan]{s}[/cyan]" for s in skills])
+                        console.print(Panel(
+                            f"Available skills:\n{styled_skills}\n\n"
+                            "To load a skill and optionally pass arguments, type:\n"
+                            "  [green]/skills <skill_name> [your arguments here...][/green]",
+                            title="[bold green]Available Skills[/bold green]",
+                            border_style="green"
+                        ))
                     return "input_again"
                     
                 skill_content = find_skill_content(skill_name)
@@ -268,7 +283,6 @@ class ConsoleInputNode(Node):
                 console.print(f"[bold green]Loaded skill instructions: {skill_name}[/bold green]")
                 
                 # Check for arguments
-                arguments = " ".join(parts[1:])
                 if arguments:
                     shared["session"].append_message(role="user", content=arguments)
                     return "default"
@@ -317,6 +331,7 @@ class HelpNode(Node):
 | `/model` | Switch model providers or specific model IDs |
 | `/session` | Inspect active session file name, cost details, and stats |
 | `/compact` | Summarize earlier messages manually to save context window |
+| `/skills:<skill_name>`, `/skill:<skill_name>` | Inspect available skills or load a local custom skill in context |
 | `/quit`, `/exit` | Exit the pocket-pi terminal loop gracefully |
 | `/help` | Display this helpful table |
 
