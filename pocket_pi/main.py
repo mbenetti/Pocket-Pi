@@ -110,7 +110,8 @@ def main():
                             session.current_leaf_id = parent_id
             continue
         except Exception as e:
-            console.print(f"\n[bold red]Critical Error in Flow Execution:[/bold red] {e}")
+            console.print("\n[bold red]Critical Error in Flow Execution:[/bold red]")
+            console.print(e)
             import traceback
             traceback.print_exc()
             sys.exit(1)

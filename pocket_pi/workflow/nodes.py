@@ -877,10 +877,10 @@ def prompt_gatekeeper_choice(category: str, item: str) -> str:
         f" • [bold]Resource:[/bold] [cyan]{item}[/cyan]",
         "",
         " [bold]How would you like to handle this request?[/bold]",
-        " [bold green]y[/bold] = Allow once",
-        " [bold green]a[/bold] = Always allow in this project",
-        " [bold red]n[/bold] = Block once",
-        " [bold red]b[/bold] = Always block in this project",
+        " [bold green]y[/bold green] = Allow once",
+        " [bold green]a[/bold green] = Always allow in this project",
+        " [bold red]n[/bold red] = Block once",
+        " [bold red]b[/bold red] = Always block in this project",
     ]
     panel_content = "\n".join(prompt_lines)
     
