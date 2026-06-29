@@ -1,4 +1,4 @@
-# 🚀 Pocket-Pi: Dynamic Coding Agent (Educational Refactor)
+# 🚀 Pocket-Pi: Dynamic Coding Agent
 
 ![Pocket-Pi Banner](assets/README_banner.png)
 
