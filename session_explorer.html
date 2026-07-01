@@ -414,6 +414,112 @@
 
         <!-- JavaScript Logic -->
         <script>
+            // Embedded sessions data (injected by update_explorer.py)
+            const EMBEDDED_SESSIONS = {
+  "1782901428_c3d63061.jsonl": {
+    "filename": "1782901428_c3d63061.jsonl",
+    "displayName": "Untitled Session",
+    "header": {
+      "type": "session",
+      "id": "929cddd8-0cb8-4f78-ba67-7a09184506b6",
+      "parentId": null,
+      "version": 3,
+      "timestamp": 1782901428.155255
+    },
+    "entries": [
+      {
+        "type": "session",
+        "id": "929cddd8-0cb8-4f78-ba67-7a09184506b6",
+        "parentId": null,
+        "version": 3,
+        "timestamp": 1782901428.155255
+      },
+      {
+        "type": "message",
+        "id": "960b1fc4-7c7e-4221-b867-5936ea0f824b",
+        "parentId": null,
+        "message": {
+          "role": "user",
+          "timestamp": 1782901433014,
+          "content": "hi"
+        },
+        "timestamp": 1782901433.014585
+      },
+      {
+        "type": "message",
+        "id": "adc86289-a43e-4c0b-b68c-75d3cf263e5a",
+        "parentId": "960b1fc4-7c7e-4221-b867-5936ea0f824b",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782901435280,
+          "content": [
+            {
+              "type": "text",
+              "text": "Hi! How can I help you today?"
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782901435.280434
+      },
+      {
+        "type": "message",
+        "id": "5beb66cd-d90b-4ef8-925d-ad23a2eb41dc",
+        "parentId": "adc86289-a43e-4c0b-b68c-75d3cf263e5a",
+        "message": {
+          "role": "user",
+          "timestamp": 1782901836760,
+          "content": "What can you do ? or build?"
+        },
+        "timestamp": 1782901836.760472
+      },
+      {
+        "type": "message",
+        "id": "623645c2-fef4-4482-9717-e8f83a8b9932",
+        "parentId": "5beb66cd-d90b-4ef8-925d-ad23a2eb41dc",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782901839767,
+          "content": [
+            {
+              "type": "text",
+              "text": "Here's what I can do within this Pocket-Pi development environment:\n\n**\ud83d\udd27 Core Capabilities**\n- Write, modify, and debug Python code\n- Execute bash commands (within security boundaries)\n- Read/write files in the project workspace\n\n**\ud83e\udde9 Architecture**\n- Build state-machine workflows using `pocket-flow` (`Node` classes)\n- Route data through the `shared` state dictionary between nodes\n\n**\ud83d\udce6 Project Features**\n- Execute CLI tools via TUI\n- Run interactive workflows with human-in-the-loop confirmations\n- Access tools defined in `permissions.json` (respecting trust boundaries)\n\n**\ud83c\udfa8 Tech Stack**\n- Python with type hints\n- `rich` for terminal UI\n- `pocket-flow` for state-machine design\n\nWant me to show you around the project structure, or is there something specific you'd like to build?"
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782901839.7677288
+      }
+    ],
+    "leaves": [
+      {
+        "type": "message",
+        "id": "623645c2-fef4-4482-9717-e8f83a8b9932",
+        "parentId": "5beb66cd-d90b-4ef8-925d-ad23a2eb41dc",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782901839767,
+          "content": [
+            {
+              "type": "text",
+              "text": "Here's what I can do within this Pocket-Pi development environment:\n\n**\ud83d\udd27 Core Capabilities**\n- Write, modify, and debug Python code\n- Execute bash commands (within security boundaries)\n- Read/write files in the project workspace\n\n**\ud83e\udde9 Architecture**\n- Build state-machine workflows using `pocket-flow` (`Node` classes)\n- Route data through the `shared` state dictionary between nodes\n\n**\ud83d\udce6 Project Features**\n- Execute CLI tools via TUI\n- Run interactive workflows with human-in-the-loop confirmations\n- Access tools defined in `permissions.json` (respecting trust boundaries)\n\n**\ud83c\udfa8 Tech Stack**\n- Python with type hints\n- `rich` for terminal UI\n- `pocket-flow` for state-machine design\n\nWant me to show you around the project structure, or is there something specific you'd like to build?"
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782901839.7677288
+      }
+    ],
+    "activeModel": "Unknown Model",
+    "activeProvider": "Unknown Provider",
+    "size": 2060,
+    "timestamp": 1782901428.155255
+  }
+};
+
             // State Management
             const state = {
                 sessions: {}, // filename -> session object
@@ -500,6 +606,33 @@
 
             // Initialize App & Check for Saved Handle
             window.addEventListener("DOMContentLoaded", async () => {
+                if (
+                    EMBEDDED_SESSIONS &&
+                    Object.keys(EMBEDDED_SESSIONS).length > 0
+                ) {
+                    // Hide picker buttons since we have embedded data
+                    pickerBtn.classList.add("hidden");
+                    fallbackLabel.classList.add("hidden");
+
+                    state.sessions = EMBEDDED_SESSIONS;
+                    renderSessionList();
+
+                    const sortedSessions = Object.values(state.sessions).sort(
+                        (a, b) => b.timestamp - a.timestamp,
+                    );
+                    if (sortedSessions.length > 0) {
+                        selectSession(sortedSessions[0].filename);
+                    }
+
+                    welcomePanel.innerHTML = `
+                        <i class="fa-solid fa-circle-check text-6xl text-brand-green opacity-40"></i>
+                        <div class="text-center max-w-md">
+                            <h3 class="text-lg font-bold text-white mb-1">Sessions Loaded Successfully</h3>
+                            <p class="text-sm text-brand-textMuted">Select a session from the sidebar to view the timeline.</p>
+                        </div>`;
+                    return;
+                }
+
                 // Check if File System Access API is supported
                 if (typeof window.showDirectoryPicker !== "function") {
                     // Fallback to standard webkitdirectory input
