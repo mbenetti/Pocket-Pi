@@ -96,12 +96,27 @@ def update_explorer():
 
     html_content = EXPLORER_HTML.read_text(encoding="utf-8")
 
-    # Replace the EMBEDDED_SESSIONS placeholder safely using a lambda function to bypass escape parsing
-    json_str = json.dumps(sessions_data, indent=2)
-    pattern = r"const EMBEDDED_SESSIONS = [^;]+;"
-    replacement_text = f"const EMBEDDED_SESSIONS = {json_str};"
+    # Find the start and end markers
+    start_marker = "// START_EMBEDDED_SESSIONS"
+    end_marker = "// END_EMBEDDED_SESSIONS"
 
-    new_html_content = re.sub(pattern, lambda m: replacement_text, html_content)
+    start_idx = html_content.find(start_marker)
+    end_idx = html_content.find(end_marker)
+
+    if start_idx == -1 or end_idx == -1:
+        print(
+            "Error: Could not find EMBEDDED_SESSIONS markers in session_explorer.html!"
+        )
+        return
+
+    # Build the new embedded block
+    json_str = json.dumps(sessions_data, indent=2)
+    new_block = f"{start_marker}\n            const EMBEDDED_SESSIONS = {json_str};\n            {end_marker}"
+
+    # Replace the block
+    new_html_content = (
+        html_content[:start_idx] + new_block + html_content[end_idx + len(end_marker) :]
+    )
     EXPLORER_HTML.write_text(new_html_content, encoding="utf-8")
     print("Successfully updated session_explorer.html with embedded session data!")
 
