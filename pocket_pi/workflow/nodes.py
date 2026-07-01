@@ -17,7 +17,7 @@ from rich.text import Text
 from pocket_pi.config import ConfigManager, log_debug
 from pocket_pi.session import SessionManager
 from pocket_pi.tools import TOOLS_SCHEMA, run_tool
-from pocket_pi.workflow.utils import call_llm
+from pocket_pi.workflow.utils import call_llm, get_ollama_models
 
 SPINNERS["pocket"] = {
     "interval": 100,  # Interval in milliseconds
@@ -486,10 +486,11 @@ class LoginNode(Node):
         console.print("2. OpenAI")
         console.print("3. OpenRouter")
         console.print("4. Tavily Search")
-        console.print("5. Cancel")
+        console.print("5. Ollama (Local URL)")
+        console.print("6. Cancel")
 
         try:
-            choice = input("\nSelect Provider option (1-5): ").strip()
+            choice = input("\nSelect Provider option (1-6): ").strip()
             if choice == "1":
                 provider = "anthropic"
             elif choice == "2":
@@ -498,15 +499,24 @@ class LoginNode(Node):
                 provider = "openrouter"
             elif choice == "4":
                 provider = "tavily"
+            elif choice == "5":
+                provider = "ollama"
             else:
                 return None
 
-            import getpass
+            if provider == "ollama":
+                key = input(
+                    "Enter Ollama Base URL (default: http://localhost:11434/v1): "
+                ).strip()
+                if not key:
+                    key = "http://localhost:11434/v1"
+            else:
+                import getpass
 
-            key = getpass.getpass(f"Enter API key for {provider}: ").strip()
-            if not key:
-                console.print("[yellow]Empty API key entered. Cancelled.[/yellow]")
-                return None
+                key = getpass.getpass(f"Enter API key for {provider}: ").strip()
+                if not key:
+                    console.print("[yellow]Empty API key entered. Cancelled.[/yellow]")
+                    return None
 
             return {"provider": provider, "key": key}
         except Exception as e:
@@ -546,12 +556,13 @@ class ModelNode(Node):
         console.print("1. Switch to Anthropic Claude 3.7 Sonnet")
         console.print("2. Switch to OpenAI GPT-4o")
         console.print("3. Switch to OpenRouter Gemini 3.5 Flash")
-        console.print("4. Switch to Custom model ID")
-        console.print("5. Toggle Thinking Level")
-        console.print("6. Cancel")
+        console.print("4. Switch to Ollama (Local Models)")
+        console.print("5. Switch to Custom model ID")
+        console.print("6. Toggle Thinking Level")
+        console.print("7. Cancel")
 
         try:
-            choice = input("Enter option (1-6): ").strip()
+            choice = input("Enter option (1-7): ").strip()
             if choice == "1":
                 return {"provider": "anthropic", "model": "claude-3-7-sonnet-20250219"}
             elif choice == "2":
@@ -559,14 +570,45 @@ class ModelNode(Node):
             elif choice == "3":
                 return {"provider": "openrouter", "model": "google/gemini-3.5-flash"}
             elif choice == "4":
+                console.print(
+                    "\n[bold cyan]Detecting local Ollama models...[/bold cyan]"
+                )
+                models = get_ollama_models()
+                if not models:
+                    console.print(
+                        "[yellow]No local Ollama models detected or Ollama is not running.[/yellow]"
+                    )
+                    m_id = input(
+                        "Enter Ollama model ID manually (e.g. llama3.1): "
+                    ).strip()
+                    if not m_id:
+                        return {}
+                    return {"provider": "ollama", "model": m_id}
+
+                console.print("\n[bold]Available Local Ollama Models:[/bold]")
+                for idx, m in enumerate(models):
+                    console.print(f" {idx + 1}. [green]{m}[/green]")
+                console.print(" C. Cancel")
+
+                try:
+                    m_choice = input(f"Select model (1-{len(models)}): ").strip()
+                    if m_choice.lower() == "c":
+                        return {}
+                    m_idx = int(m_choice) - 1
+                    if 0 <= m_idx < len(models):
+                        return {"provider": "ollama", "model": models[m_idx]}
+                except Exception:
+                    pass
+                return {}
+            elif choice == "5":
                 prov = (
-                    input("Enter provider (anthropic/openai/openrouter): ")
+                    input("Enter provider (anthropic/openai/openrouter/ollama): ")
                     .strip()
                     .lower()
                 )
                 m_id = input("Enter model ID block: ").strip()
                 return {"provider": prov, "model": m_id}
-            elif choice == "5":
+            elif choice == "6":
                 level = (
                     input("Enter level (off/minimal/low/medium/high/xhigh): ")
                     .strip()
