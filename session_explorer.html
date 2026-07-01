@@ -214,23 +214,11 @@
                             class="bg-brand-panelBg p-2 rounded border border-brand-border"
                         >
                             <span class="text-brand-textMuted block"
-                                >Total Tokens</span
-                            >
-                            <span
-                                class="font-bold text-white text-sm"
-                                id="stat-tokens"
-                                >-</span
-                            >
-                        </div>
-                        <div
-                            class="bg-brand-panelBg p-2 rounded border border-brand-border"
-                        >
-                            <span class="text-brand-textMuted block"
-                                >Estimated Cost</span
+                                >Total Sessions</span
                             >
                             <span
                                 class="font-bold text-brand-green text-sm"
-                                id="stat-cost"
+                                id="stat-sessions"
                                 >-</span
                             >
                         </div>
@@ -238,7 +226,7 @@
                             class="bg-brand-panelBg p-2 rounded border border-brand-border"
                         >
                             <span class="text-brand-textMuted block"
-                                >Messages</span
+                                >Total Messages</span
                             >
                             <span
                                 class="font-bold text-white text-sm"
@@ -250,11 +238,23 @@
                             class="bg-brand-panelBg p-2 rounded border border-brand-border"
                         >
                             <span class="text-brand-textMuted block"
-                                >Tool Calls</span
+                                >Total Tool Calls</span
                             >
                             <span
                                 class="font-bold text-white text-sm"
                                 id="stat-tools"
+                                >-</span
+                            >
+                        </div>
+                        <div
+                            class="bg-brand-panelBg p-2 rounded border border-brand-border"
+                        >
+                            <span class="text-brand-textMuted block"
+                                >Total Bash Calls</span
+                            >
+                            <span
+                                class="font-bold text-white text-sm"
+                                id="stat-bash"
                                 >-</span
                             >
                         </div>
@@ -1111,10 +1111,10 @@
 
             // Stats Elements
             const statsPanel = document.getElementById("stats-panel");
-            const statTokens = document.getElementById("stat-tokens");
-            const statCost = document.getElementById("stat-cost");
+            const statSessions = document.getElementById("stat-sessions");
             const statMessages = document.getElementById("stat-messages");
             const statTools = document.getElementById("stat-tools");
+            const statBash = document.getElementById("stat-bash");
 
             // IndexedDB Helper for Directory Handle Persistence
             const dbName = "PocketPiExplorerDB";
@@ -1652,44 +1652,47 @@
                         ? getPathToRoot(session.entries, state.activeLeafId)
                         : session.entries;
 
-                const messages = path.filter((e) => e.type === "message");
-                const toolCalls = messages.filter(
-                    (e) =>
-                        e.message &&
-                        e.message.role === "assistant" &&
-                        e.message.tool_calls &&
-                        e.message.tool_calls.length > 0,
-                );
+                const messages = path.filter((e) => e.type === "message" && e.message && (e.message.role === "user" || e.message.role === "assistant"));
 
-                let totalTokens = 0;
-                let totalCost = 0.0;
+                let totalToolCalls = 0;
+                let totalBashCalls = 0;
 
                 path.forEach((e) => {
-                    if (e.usage) {
-                        totalTokens += e.usage.totalTokens || 0;
-                        const input = e.usage.input || 0;
-                        const output = e.usage.output || 0;
-                        if (session.activeModel.includes("claude-3-7")) {
-                            totalCost +=
-                                (input * 3.0) / 1000000 +
-                                (output * 15.0) / 1000000;
-                        } else if (session.activeModel.includes("gpt-4o")) {
-                            totalCost +=
-                                (input * 2.5) / 1000000 +
-                                (output * 10.0) / 1000000;
-                        } else {
-                            totalCost +=
-                                (input * 0.075) / 1000000 +
-                                (output * 0.3) / 1000000;
+                    if (e.type === "message" && e.message) {
+                        const role = e.message.role;
+
+                        // Count direct local bash executions
+                        if (role === "bashExecution") {
+                            totalBashCalls++;
+                        }
+
+                        // Count LLM requested tool calls
+                        if (role === "assistant") {
+                            let toolCalls = [];
+                            if (e.message.tool_calls && Array.isArray(e.message.tool_calls)) {
+                                toolCalls = e.message.tool_calls;
+                            } else if (e.message.content && Array.isArray(e.message.content)) {
+                                toolCalls = e.message.content.filter(b => b.type === "toolCall");
+                            }
+
+                            totalToolCalls += toolCalls.length;
+
+                            // Count bash tool calls specifically
+                            const bashToolCalls = toolCalls.filter(tc => {
+                                const name = tc.name || (tc.function ? tc.function.name : "");
+                                return name === "bash";
+                            });
+                            totalBashCalls += bashToolCalls.length;
                         }
                     }
                 });
 
-                statTokens.innerText = totalTokens.toLocaleString();
-                statCost.innerText =
-                    totalCost > 0 ? `$${totalCost.toFixed(4)}` : "Free/Local";
-                statMessages.innerText = messages.length;
-                statTools.innerText = toolCalls.length;
+                const totalSessions = Object.keys(state.sessions).length;
+
+                if (statSessions) statSessions.innerText = totalSessions;
+                if (statMessages) statMessages.innerText = messages.length;
+                if (statTools) statTools.innerText = totalToolCalls;
+                if (statBash) statBash.innerText = totalBashCalls;
             }
 
             // Reconstruct Chronological Path to Root
