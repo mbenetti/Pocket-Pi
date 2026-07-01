@@ -1123,6 +1123,8 @@ Current Date: {current_date}
             role="assistant",
             content=content_blocks,
             thinking=result["thinking"] if result["thinking"] else None,
+            model=shared["config"].model,
+            provider=shared["config"].provider,
         )
 
         if result.get("tool_calls"):

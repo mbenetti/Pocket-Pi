@@ -1807,8 +1807,9 @@
                     header.className = 'flex items-center justify-between border-b border-brand-border/50 pb-3 shrink-0';
 
                     let modelBadge = '';
-                    if (role === 'assistant' && entry.message && entry.message.model) {
-                        modelBadge = `<span class="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded font-mono">${entry.message.model}</span>`;
+                    if (role === 'assistant') {
+                        const m = (entry.message && entry.message.model && entry.message.model !== "active_model") ? entry.message.model : session.activeModel;
+                        modelBadge = `<span class="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded font-mono">${m}</span>`;
                     }
 
                     let usageBadge = '';
@@ -1847,8 +1848,9 @@
                     headerRow.className = "flex items-center justify-between p-3 cursor-pointer hover:bg-brand-panelBg/50 transition select-none";
 
                     let modelBadge = '';
-                    if (role === 'assistant' && entry.message && entry.message.model) {
-                        modelBadge = `<span class="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded font-mono shrink-0">${entry.message.model}</span>`;
+                    if (role === 'assistant') {
+                        const m = (entry.message && entry.message.model && entry.message.model !== "active_model") ? entry.message.model : session.activeModel;
+                        modelBadge = `<span class="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded font-mono shrink-0">${m}</span>`;
                     }
 
                     let usageBadge = '';
