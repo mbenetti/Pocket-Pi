@@ -128,4 +128,10 @@ The Shared State, especially with its structured components like the `SessionMan
 Now that we thoroughly understand how the Shared State acts as the central data bus for Pocket-Pi, we can delve into its specific components and how they leverage this shared context to provide intelligent, contextual agency. Our next chapter will focus on the **`ConfigManager (Hierarchical Configuration)`**, detailing how settings and environment variables are structured and made accessible throughout the agent's lifecycle.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 4: Workflow Node](04_workflow_node.md)
+
+---
 Generated with Pi Tutorial Builder.

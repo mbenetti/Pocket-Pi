@@ -165,4 +165,10 @@ The Slash Command System exemplifies Pocket-Pi's commitment to providing a respo
 Now that we understand how administrative commands are handled, we're ready to dive into the core intelligence of Pocket-Pi: the reasoning capabilities provided by its Large Language Model. Our next chapter will explore the **`PlannerNode (LLM Reasoner)`**, the brain orchestrating the agent's complex behaviors.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 8: PlannerNode (LLM Reasoner)](08_plannernode_llm_reasoner_.md)
+
+---
 Generated with Pi Tutorial Builder.

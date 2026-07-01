@@ -166,4 +166,10 @@ This architecture ensures that `Pocket-Pi` isn't just a collection of scripts, b
 Next, we delve deeper into the `Shared State` itself, exploring how `Pocket-Pi` leverages a central `Context Store` to ensure consistent data availability and efficient communication across all `Nodes` in **Chapter 3: Shared State (Context Store)**.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 3: Shared State (Context Store)](03_shared_state_context_store_.md)
+
+---
 Generated with Pi Tutorial Builder.

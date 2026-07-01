@@ -207,4 +207,10 @@ This tool allows Pocket-Pi to perform sophisticated, intelligent code transforma
 Next, we will explore another critical architectural pattern that simplifies system design and interaction within Pocket-Pi: the **In-Node Router Pattern** in Chapter 12.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 12: In-Node Router Pattern](12_in_node_router_pattern.md)
+
+---
 Generated with Pi Tutorial Builder.

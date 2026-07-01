@@ -140,4 +140,10 @@ With a solid understanding of how individual `Workflow Nodes` function as isolat
 Proceed to [Chapter 5: ConfigManager (Hierarchical Configuration)](05_configmanager_hierarchical_configuration_.md) to learn how configuration settings are managed and made accessible to these Workflow Nodes, influencing their behavior and the overall agent's operation.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 5: ConfigManager (Hierarchical Configuration)](05_configmanager_hierarchical_configuration_.md)
+
+---
 Generated with Pi Tutorial Builder.

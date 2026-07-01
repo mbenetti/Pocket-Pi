@@ -229,4 +229,10 @@ The `Tree-Based Session Manager` is a cornerstone of Pocket-Pi's agentic archite
 This robust session management system lays the groundwork for Pocket-Pi's intelligent decision-making and execution. Next, we will explore how Pocket-Pi processes and responds to user commands and system actions through the **Slash Command System** in Chapter 7, completing more of the agent's interactive user experience.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 7: Slash Command System](07_slash_command_system.md)
+
+---
 Generated with Pi Tutorial Builder.

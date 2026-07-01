@@ -183,4 +183,10 @@ The `PlannerNode` is not merely an LLM wrapper; it's a sophisticated orchestrato
 Having understood how the `PlannerNode` plans and decides, our next chapter will dive into the **`ExecutorNode (Tool Runner)`** to see how these planned tool calls are safely and effectively executed within the system.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 9: ExecutorNode (Tool Runner)](09_executornode_tool_runner_.md)
+
+---
 Generated with Pi Tutorial Builder.

@@ -211,4 +211,10 @@ By centralizing and structuring configuration management, `ConfigManager` lays t
 Next, we'll explore how Pocket-Pi manages its interaction history and current working context through the `Tree-Based Session Manager` in Chapter 6.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 6: Tree-Based Session Manager](06_tree_based_session_manager.md)
+
+---
 Generated with Pi Tutorial Builder.

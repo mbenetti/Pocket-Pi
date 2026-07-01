@@ -115,4 +115,10 @@ This robust bootstrapping lays the groundwork for the core features of Pocket-Pi
 In the next chapter, we'll delve into the very heart of Pocket-Pi's operational logic: the `PocketFlow` State-Machine Framework, understanding how it orchestrates the agent's complex behaviors.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 2: PocketFlow State-Machine Framework](02_pocketflow_state_machine_framework.md)
+
+---
 Generated with Pi Tutorial Builder.

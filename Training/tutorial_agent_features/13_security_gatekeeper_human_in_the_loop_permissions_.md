@@ -217,4 +217,10 @@ The Security Gatekeeper is more than just a feature; it's a fundamental design p
 With the security of our project boundary now solid, we will explore the comprehensive implications of this context in the next chapter. We will delve into the broader concept of the **Project Trust Boundary**, examining its relationship with the `ConfigManager` and `SessionManager`, and how it forms the secure perimeter within which Pocket-Pi operates.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 14: Project Trust Boundary](14_project_trust_boundary.md)
+
+---
 Generated with Pi Tutorial Builder.

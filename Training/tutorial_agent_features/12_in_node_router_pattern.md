@@ -99,4 +99,10 @@ The In-Node Router Pattern elegantly solves the challenge of combining the flexi
 Having understood how Pocket-Pi can optimize internal routing for speed, we now turn our attention to how the agent guards against potentially dangerous operations. Our next chapter will explore the **Security Gatekeeper (Human-In-The-Loop Permissions)**, detailing how user consent is garnered and enforced for sensitive actions.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 13: Security Gatekeeper (Human-In-The-Loop Permissions)](13_security_gatekeeper_human_in_the_loop_permissions_.md)
+
+---
 Generated with Pi Tutorial Builder.

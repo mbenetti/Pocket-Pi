@@ -245,4 +245,10 @@ The Unified Tool System is Pocket-Pi's indispensable set of capabilities for int
 Next, we'll continue exploring Pocket-Pi's interactive features with a deep dive into its `Fuzzy-Matching Line Editor (edit)`, building on the concepts introduced regarding the advanced `edit` tool.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 11: Fuzzy-Matching Line Editor (edit)](11_fuzzy_matching_line_editor_edit_.md)
+
+---
 Generated with Pi Tutorial Builder.

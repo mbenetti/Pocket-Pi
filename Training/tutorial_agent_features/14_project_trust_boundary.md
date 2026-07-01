@@ -179,4 +179,10 @@ This feature embodies Pocket-Pi's commitment to both powerful agentic capabiliti
 Having thoroughly covered the Project Trust Boundary and how it safeguards your operations, we have now concluded our deep dive into Pocket-Pi's core architecture and features. You are now equipped with a comprehensive understanding of how this sophisticated agent functions, from its foundational bootstrapping to its intelligent reasoning and secure execution.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Back to Index:** [Unified Learning & Training Portal Index](00_index.md)
+
+---
 Generated with Pi Tutorial Builder.

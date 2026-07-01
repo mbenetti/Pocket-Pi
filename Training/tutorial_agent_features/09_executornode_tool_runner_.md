@@ -146,4 +146,10 @@ This robust `ExecutorNode` is the embodiment of Pocket-Pi's agentic principles, 
 Next, we'll dive deeper into the specific tools that the `ExecutorNode` can wield, exploring the design and implementation of Pocket-Pi's extensible **Unified Tool System** in Chapter 10.
 
 ---
+
+## 🔗 Next Lesson
+
+*   **Next Chapter:** [Chapter 10: Unified Tool System](10_unified_tool_system.md)
+
+---
 Generated with Pi Tutorial Builder.
