@@ -109,6 +109,7 @@ flowchart TD
     InputRouter -- "/resume" --> ResumeNode[ResumeNode]
     InputRouter -- "/session" --> SessionNode[SessionNode]
     InputRouter -- "/new" --> NewSessionNode[NewSessionNode]
+    InputRouter -- "/reset" --> ResetNode[ResetNode]
     InputRouter -- "/help" --> HelpNode[HelpNode]
     InputRouter -- "standard prompt" --> PlannerNode[PlannerNode]
     
@@ -117,6 +118,7 @@ flowchart TD
     ResumeNode --> ConsoleInput
     SessionNode --> ConsoleInput
     NewSessionNode --> ConsoleInput
+    ResetNode --> ConsoleInput
     HelpNode --> ConsoleInput
     
     PlannerNode -- "tool requested" --> ExecutorNode[ExecutorNode]

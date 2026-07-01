@@ -13,7 +13,7 @@ class ConsoleInputNode(Node):
     def __init__(self):
         super().__init__()
         # Instantiate commands and base completions registry
-        commands = ["/new", "/login", "/resume", "/model", "/session", "/compact", "/help", "/quit", "/exit"]
+        commands = ["/new", "/login", "/resume", "/model", "/session", "/compact", "/help", "/quit", "/exit", "/reset"]
         for skill in get_available_skills():
             commands.append(f"/skill:{skill}")
             

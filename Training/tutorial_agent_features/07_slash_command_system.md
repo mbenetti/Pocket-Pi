@@ -79,7 +79,7 @@ The `ConsoleInputNode.post` method acts as a dedicated **command router**. If th
 
 ### 2. Dedicated Command Nodes
 
-Each administrative slash command (e.g., `/new`, `/model`, `/help`) is typically handled by its own dedicated `Workflow Node`. These nodes are concise and perform specific tasks related to managing the agent's state.
+Each administrative slash command (e.g., `/new`, `/reset`, `/model`, `/help`) is typically handled by its own dedicated `Workflow Node`. These nodes are concise and perform specific tasks related to managing the agent's state.
 
 Consider the `NewSessionNode` which handles the `/new` command:
 
@@ -147,6 +147,7 @@ This intelligent autocompletion, while seemingly a minor feature, significantly 
 
 The `Shared State` (Chapter 3) is paramount for the Slash Command System. Command nodes often directly modify elements within the `shared` dictionary. For example:
 *   `/new` creates a new `SessionManager` instance and assigns it to `shared["session"]`.
+*   `/reset` permanently deletes all project session files and initializes a fresh container state.
 *   `/model` updates `shared["config"].model` and `shared["config"].provider`.
 *   `/quit` sets `shared["exit"] = True`, signaling the `PocketFlow` runtime to terminate.
 

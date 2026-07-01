@@ -21,6 +21,7 @@ flowchart TD
     InputRouter -- "/resume" --> ResumeNode[ResumeNode]
     InputRouter -- "/session" --> SessionNode[SessionNode]
     InputRouter -- "/new" --> NewSessionNode[NewSessionNode]
+    InputRouter -- "/reset" --> ResetNode[ResetNode]
     InputRouter -- "/help" --> HelpNode[HelpNode]
     InputRouter -- "standard prompt" --> PlannerNode[PlannerNode]
     
@@ -29,6 +30,7 @@ flowchart TD
     ResumeNode --> ConsoleInput
     SessionNode --> ConsoleInput
     NewSessionNode --> ConsoleInput
+    ResetNode --> ConsoleInput
     HelpNode --> ConsoleInput
     
     PlannerNode -- "tool called" --> ExecutorNode[ExecutorNode]
@@ -110,6 +112,7 @@ Toggle advanced administrative setups directly in the prompt editor using simple
 | Slash Command | Detailed Action |
 |:---|:---|
 | `/new` | Resets tree state and starts a completely fresh conversation branch. |
+| `/reset` | Permanently deletes all session files and resets the local project state. |
 | `/resume` | Dynamically scans and lets you choose from your previous sessions. |
 | `/model` | Swaps default providers (Anthropic <=> OpenAI), selects custom models, or adjusts thinking budgets. |
 | `/session` | Details current JSONL stats, cost summaries, and active leaf identifier. |
