@@ -127,13 +127,20 @@
                 </div>
             </div>
             <div class="flex items-center space-x-4">
-                <button
-                    id="refresh-btn"
-                    class="bg-brand-green/10 hover:bg-brand-green/20 text-brand-green border border-brand-green/30 font-semibold px-4 py-2 rounded-lg text-sm transition flex items-center space-x-2"
+                <label
+                    class="cursor-pointer bg-brand-green hover:bg-brand-green/90 text-black font-semibold px-4 py-2 rounded-lg text-sm transition flex items-center space-x-2 shadow-lg shadow-brand-green/10"
                 >
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Refresh Sessions</span>
-                </button>
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Select .pocket_pi/sessions Folder</span>
+                    <input
+                        type="file"
+                        id="folder-input"
+                        webkitdirectory
+                        directory
+                        multiple
+                        class="hidden"
+                    />
+                </label>
             </div>
         </header>
 
@@ -167,9 +174,12 @@
                         class="text-center py-8 text-brand-textMuted text-sm space-y-2"
                     >
                         <i
-                            class="fa-solid fa-spinner fa-spin text-3xl text-brand-green"
+                            class="fa-solid fa-folder-open text-3xl opacity-40"
                         ></i>
-                        <p>Loading sessions from pocket-pi...</p>
+                        <p>
+                            Click "Select .pocket_pi/sessions Folder" above to
+                            load your sessions.
+                        </p>
                     </div>
                 </div>
 
@@ -361,14 +371,16 @@
                     <div
                         class="h-full flex flex-col items-center justify-center text-brand-textMuted space-y-4"
                     >
-                        <i class="fa-solid fa-receipt text-6xl opacity-20"></i>
+                        <i
+                            class="fa-solid fa-folder-open text-6xl opacity-20"
+                        ></i>
                         <div class="text-center">
                             <h3 class="text-lg font-bold text-white mb-1">
-                                No Session Selected
+                                No Folder Selected
                             </h3>
                             <p class="text-sm">
-                                Select a session from the sidebar to view the
-                                timeline.
+                                Click "Select .pocket_pi/sessions Folder" above
+                                to load and explore your sessions.
                             </p>
                         </div>
                     </div>
@@ -394,6 +406,7 @@
             };
 
             // DOM Elements
+            const folderInput = document.getElementById("folder-input");
             const sessionList = document.getElementById("session-list");
             const searchSessions = document.getElementById("search-sessions");
             const timeline = document.getElementById("timeline");
@@ -404,7 +417,6 @@
             const viewPathBtn = document.getElementById("view-path");
             const viewFlatBtn = document.getElementById("view-flat");
             const filterTextInput = document.getElementById("filter-text");
-            const refreshBtn = document.getElementById("refresh-btn");
 
             // Stats Elements
             const statsPanel = document.getElementById("stats-panel");
@@ -413,9 +425,58 @@
             const statMessages = document.getElementById("stat-messages");
             const statTools = document.getElementById("stat-tools");
 
-            // Initialize App
-            window.addEventListener("DOMContentLoaded", loadSessionsFromApi);
-            refreshBtn.addEventListener("click", loadSessionsFromApi);
+            // Handle Folder Selection
+            folderInput.addEventListener("change", async (e) => {
+                const files = e.target.files;
+                state.sessions = {};
+                state.activeSessionFile = null;
+                state.activeLeafId = null;
+
+                sessionList.innerHTML = `
+                <div class="text-center py-8 text-brand-textMuted text-sm space-y-2">
+                    <i class="fa-solid fa-spinner fa-spin text-3xl text-brand-green"></i>
+                    <p>Reading and parsing session files...</p>
+                </div>`;
+
+                // Filter and read only .jsonl files
+                const jsonlFiles = Array.from(files).filter((f) =>
+                    f.name.endsWith(".jsonl"),
+                );
+
+                if (jsonlFiles.length === 0) {
+                    sessionList.innerHTML = `
+                    <div class="text-center py-8 text-red-400 text-sm space-y-2">
+                        <i class="fa-solid fa-circle-exclamation text-3xl"></i>
+                        <p>No .jsonl session files found in the selected folder!</p>
+                    </div>`;
+                    return;
+                }
+
+                // Read and parse all files
+                for (const file of jsonlFiles) {
+                    try {
+                        const text = await file.text();
+                        parseAndStoreSession(
+                            file.name,
+                            text,
+                            file.size,
+                            file.lastModified / 1000,
+                        );
+                    } catch (err) {
+                        console.error("Failed to read file: " + file.name, err);
+                    }
+                }
+
+                renderSessionList();
+
+                // Auto-select first session
+                const sortedSessions = Object.values(state.sessions).sort(
+                    (a, b) => b.timestamp - a.timestamp,
+                );
+                if (sortedSessions.length > 0) {
+                    selectSession(sortedSessions[0].filename);
+                }
+            });
 
             searchSessions.addEventListener("input", renderSessionList);
             filterTextInput.addEventListener("input", (e) => {
@@ -459,49 +520,77 @@
                 });
             });
 
-            // Fetch Sessions List from API
-            async function loadSessionsFromApi() {
-                sessionList.innerHTML = `
-                <div class="text-center py-8 text-brand-textMuted text-sm space-y-2">
-                    <i class="fa-solid fa-spinner fa-spin text-3xl text-brand-green"></i>
-                    <p>Loading sessions from pocket-pi...</p>
-                </div>`;
+            // Parse JSONL and Store Session
+            function parseAndStoreSession(
+                filename,
+                rawText,
+                size,
+                lastModified,
+            ) {
+                const lines = rawText.split("\n");
+                const entries = [];
 
-                try {
-                    const response = await fetch("/api/sessions");
-                    if (!response.ok)
-                        throw new Error("Failed to fetch sessions");
-                    const sessionsList = await response.json();
+                lines.forEach((line) => {
+                    if (!line.trim()) return;
+                    try {
+                        entries.push(JSON.parse(line));
+                    } catch (err) {}
+                });
 
-                    state.sessions = {};
-                    sessionsList.forEach((s) => {
-                        state.sessions[s.filename] = {
-                            filename: s.filename,
-                            displayName: s.displayName,
-                            timestamp: s.timestamp,
-                            size: s.size,
-                            activeModel: s.model,
-                            activeProvider: s.provider,
-                            msgCount: s.msgCount,
-                            loaded: false,
-                            entries: [],
-                            leaves: [],
-                        };
-                    });
+                if (entries.length === 0) return;
 
-                    renderSessionList();
+                // Extract Session Metadata
+                const header = entries.find((e) => e.type === "session");
+                const sessionInfo = entries.find(
+                    (e) => e.type === "session_info",
+                );
+                const modelChanges = entries.filter(
+                    (e) => e.type === "model_change",
+                );
 
-                    // Auto-select first session if none is active
-                    if (sessionsList.length > 0 && !state.activeSessionFile) {
-                        selectSession(sessionsList[0].filename);
+                let displayName = sessionInfo
+                    ? sessionInfo.name
+                    : "Untitled Session";
+                let activeModel = "Unknown Model";
+                let activeProvider = "Unknown Provider";
+
+                if (modelChanges.length > 0) {
+                    const lastChange = modelChanges[modelChanges.length - 1];
+                    activeModel = lastChange.modelId;
+                    activeProvider = lastChange.provider;
+                } else {
+                    const msgWithModel = entries.find(
+                        (e) => e.type === "message" && e.model,
+                    );
+                    if (msgWithModel) {
+                        activeModel = msgWithModel.model;
+                        activeProvider = msgWithModel.provider || "Unknown";
                     }
-                } catch (err) {
-                    sessionList.innerHTML = `
-                    <div class="text-center py-8 text-red-400 text-sm space-y-2">
-                        <i class="fa-solid fa-circle-exclamation text-3xl"></i>
-                        <p>Failed to load sessions.<br>Is explorer.py running?</p>
-                    </div>`;
                 }
+
+                // Find all leaf nodes (nodes that are not parents of any other node)
+                const parentIds = new Set(
+                    entries.map((e) => e.parentId).filter((id) => id),
+                );
+                const leafNodes = entries.filter(
+                    (e) => e.id && !parentIds.has(e.id) && e.type === "message",
+                );
+                const allLeafNodes =
+                    leafNodes.length > 0
+                        ? leafNodes
+                        : entries.filter((e) => e.id && !parentIds.has(e.id));
+
+                state.sessions[filename] = {
+                    filename: filename,
+                    displayName: displayName,
+                    header: header,
+                    entries: entries,
+                    leaves: allLeafNodes,
+                    activeModel: activeModel,
+                    activeProvider: activeProvider,
+                    size: size,
+                    timestamp: header ? header.timestamp : lastModified,
+                };
             }
 
             // Render Session List Sidebar
@@ -541,7 +630,7 @@
                     item.innerHTML = `
                     <div class="flex items-center justify-between mb-1">
                         <span class="font-bold text-sm truncate max-w-[180px] ${isActive ? "text-brand-green" : "text-white"}">${s.displayName}</span>
-                        <span class="text-[10px] bg-brand-darkBg px-1.5 py-0.5 rounded border border-brand-border">${s.msgCount} msgs</span>
+                        <span class="text-[10px] bg-brand-darkBg px-1.5 py-0.5 rounded border border-brand-border">${s.leaves.length} branch(es)</span>
                     </div>
                     <div class="text-[11px] flex justify-between">
                         <span class="truncate max-w-[140px]">${s.activeModel}</span>
@@ -560,68 +649,11 @@
                 });
             }
 
-            // Lazy-load and Select Active Session
-            async function selectSession(filename) {
+            // Select Active Session
+            function selectSession(filename) {
                 state.activeSessionFile = filename;
                 const session = state.sessions[filename];
                 if (!session) return;
-
-                renderSessionList();
-
-                // If not loaded, fetch full content from API
-                if (!session.loaded) {
-                    timeline.innerHTML = `
-                    <div class="h-full flex flex-col items-center justify-center text-brand-textMuted space-y-3">
-                        <i class="fa-solid fa-spinner fa-spin text-4xl text-brand-green"></i>
-                        <p class="text-sm">Loading session logs...</p>
-                    </div>`;
-
-                    try {
-                        const response = await fetch(
-                            `/api/session/${encodeURIComponent(filename)}`,
-                        );
-                        if (!response.ok)
-                            throw new Error("Failed to load session content");
-                        const rawText = await response.text();
-
-                        const lines = rawText.split("\n");
-                        const entries = [];
-                        lines.forEach((line) => {
-                            if (!line.trim()) return;
-                            try {
-                                entries.push(JSON.parse(line));
-                            } catch (err) {}
-                        });
-
-                        // Find all leaf nodes (nodes that are not parents of any other node)
-                        const parentIds = new Set(
-                            entries.map((e) => e.parentId).filter((id) => id),
-                        );
-                        const leafNodes = entries.filter(
-                            (e) =>
-                                e.id &&
-                                !parentIds.has(e.id) &&
-                                e.type === "message",
-                        );
-                        const allLeafNodes =
-                            leafNodes.length > 0
-                                ? leafNodes
-                                : entries.filter(
-                                      (e) => e.id && !parentIds.has(e.id),
-                                  );
-
-                        session.entries = entries;
-                        session.leaves = allLeafNodes;
-                        session.loaded = true;
-                    } catch (err) {
-                        timeline.innerHTML = `
-                        <div class="h-full flex flex-col items-center justify-center text-red-400 space-y-3">
-                            <i class="fa-solid fa-circle-exclamation text-4xl"></i>
-                            <p class="text-sm">Failed to load session content.</p>
-                        </div>`;
-                        return;
-                    }
-                }
 
                 // Default active leaf to the newest leaf
                 if (session.leaves.length > 0) {
@@ -679,6 +711,7 @@
                     calculateStats();
                 };
 
+                renderSessionList();
                 calculateStats();
                 renderTimeline();
             }
@@ -686,7 +719,7 @@
             // Calculate and Render Stats
             function calculateStats() {
                 const session = state.sessions[state.activeSessionFile];
-                if (!session || !session.loaded) return;
+                if (!session) return;
 
                 const path =
                     state.viewMode === "path"
@@ -764,7 +797,7 @@
             // Render Conversation Timeline
             function renderTimeline() {
                 const session = state.sessions[state.activeSessionFile];
-                if (!session || !session.loaded) return;
+                if (!session) return;
 
                 timeline.innerHTML = "";
 
