@@ -282,6 +282,11 @@
                                 id="active-session-id"
                                 >ID: -</span
                             >
+                            <!-- Sync Button for Real-Time File Updates -->
+                            <button id="sync-session-btn" class="bg-brand-green/10 hover:bg-brand-green/20 text-brand-green border border-brand-green/30 font-semibold px-2.5 py-1 rounded-lg text-xs transition flex items-center space-x-1.5 shrink-0">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                                <span>Sync File</span>
+                            </button>
                         </div>
                         <p
                             class="text-xs text-brand-textMuted flex items-center space-x-3"
@@ -366,6 +371,24 @@
                             All Entries (Flat)
                         </button>
                     </div>
+                    <div class="h-4 w-px bg-brand-border"></div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-brand-textMuted"
+                            >Layout:</span
+                        >
+                        <button
+                            id="layout-full"
+                            class="px-2.5 py-1 rounded bg-brand-green text-black text-xs font-bold transition"
+                        >
+                            Full View
+                        </button>
+                        <button
+                            id="layout-compact"
+                            class="px-2.5 py-1 rounded bg-brand-border text-brand-textMuted text-xs font-semibold hover:text-white transition"
+                        >
+                            Compact View
+                        </button>
+                    </div>
                     <div class="ml-auto relative w-48">
                         <i
                             class="fa-solid fa-filter absolute left-2.5 top-2 text-brand-textMuted text-xs"
@@ -416,6 +439,86 @@
         <script>
             // Embedded sessions data (injected by update_explorer.py)
             const EMBEDDED_SESSIONS = {
+  "1782906476_b6b0e3ff.jsonl": {
+    "filename": "1782906476_b6b0e3ff.jsonl",
+    "displayName": "test1",
+    "header": {
+      "type": "session",
+      "id": "8366f404-7493-4c90-8f26-b62452d85dd1",
+      "parentId": null,
+      "version": 3,
+      "timestamp": 1782906476.46344
+    },
+    "entries": [
+      {
+        "type": "session",
+        "id": "8366f404-7493-4c90-8f26-b62452d85dd1",
+        "parentId": null,
+        "version": 3,
+        "timestamp": 1782906476.46344
+      },
+      {
+        "type": "session_info",
+        "id": "22b4e3e5-d72c-4ffa-977e-dc70971473e3",
+        "parentId": null,
+        "name": "test1",
+        "timestamp": 1782906476.465162
+      },
+      {
+        "type": "message",
+        "id": "46401829-62b3-4775-b51a-1d89b22eb128",
+        "parentId": "22b4e3e5-d72c-4ffa-977e-dc70971473e3",
+        "message": {
+          "role": "user",
+          "timestamp": 1782906478648,
+          "content": "hello"
+        },
+        "timestamp": 1782906478.648003
+      },
+      {
+        "type": "message",
+        "id": "de7474ae-5a8e-48dc-a9f1-44b13bb7a53a",
+        "parentId": "46401829-62b3-4775-b51a-1d89b22eb128",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782906482339,
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello! How can I help you today?"
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782906482.339759
+      }
+    ],
+    "leaves": [
+      {
+        "type": "message",
+        "id": "de7474ae-5a8e-48dc-a9f1-44b13bb7a53a",
+        "parentId": "46401829-62b3-4775-b51a-1d89b22eb128",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782906482339,
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello! How can I help you today?"
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782906482.339759
+      }
+    ],
+    "activeModel": "Unknown Model",
+    "activeProvider": "Unknown Provider",
+    "size": 831,
+    "timestamp": 1782906476.46344
+  },
   "1782901428_c3d63061.jsonl": {
     "filename": "1782901428_c3d63061.jsonl",
     "displayName": "Untitled Session",
@@ -491,31 +594,100 @@
           "model": "active_model"
         },
         "timestamp": 1782901839.7677288
-      }
-    ],
-    "leaves": [
+      },
       {
         "type": "message",
-        "id": "623645c2-fef4-4482-9717-e8f83a8b9932",
-        "parentId": "5beb66cd-d90b-4ef8-925d-ad23a2eb41dc",
+        "id": "d1f431d5-c311-4abb-bc01-8e31d3ed58fc",
+        "parentId": "623645c2-fef4-4482-9717-e8f83a8b9932",
+        "message": {
+          "role": "user",
+          "timestamp": 1782902740990,
+          "content": "make a web search to know the time now"
+        },
+        "timestamp": 1782902740.990943
+      },
+      {
+        "type": "message",
+        "id": "ae9ec2e0-3e98-43f0-bde6-626645937239",
+        "parentId": "d1f431d5-c311-4abb-bc01-8e31d3ed58fc",
         "message": {
           "role": "assistant",
-          "timestamp": 1782901839767,
+          "timestamp": 1782902744204,
           "content": [
             {
-              "type": "text",
-              "text": "Here's what I can do within this Pocket-Pi development environment:\n\n**\ud83d\udd27 Core Capabilities**\n- Write, modify, and debug Python code\n- Execute bash commands (within security boundaries)\n- Read/write files in the project workspace\n\n**\ud83e\udde9 Architecture**\n- Build state-machine workflows using `pocket-flow` (`Node` classes)\n- Route data through the `shared` state dictionary between nodes\n\n**\ud83d\udce6 Project Features**\n- Execute CLI tools via TUI\n- Run interactive workflows with human-in-the-loop confirmations\n- Access tools defined in `permissions.json` (respecting trust boundaries)\n\n**\ud83c\udfa8 Tech Stack**\n- Python with type hints\n- `rich` for terminal UI\n- `pocket-flow` for state-machine design\n\nWant me to show you around the project structure, or is there something specific you'd like to build?"
+              "type": "toolCall",
+              "id": "call_function_u7daem0ka8l6_1",
+              "name": "web_search",
+              "arguments": {
+                "query": "what time is it now"
+              }
             }
           ],
           "provider": "pocket_pi",
           "model": "active_model"
         },
-        "timestamp": 1782901839.7677288
+        "timestamp": 1782902744.2048159
+      },
+      {
+        "type": "message",
+        "id": "b8ab6811-c8c8-4596-9849-9fc9b4b771a6",
+        "parentId": "ae9ec2e0-3e98-43f0-bde6-626645937239",
+        "message": {
+          "role": "toolResult",
+          "timestamp": 1782902746219,
+          "content": [
+            {
+              "type": "text",
+              "text": "--- [Tavily Web Search Results for: what time is it now] ---\n[1] Time.now: Current Time Now - Exact Local Time in Any City\nURL: https://time.now\nSnippet: Exact current time now for any city, country or timezone. Live world clock with seconds, sunrise and sunset times, and daylight saving updates.\n\n[2] Current local time in United States - World Clock\nURL: https://24timezones.com/United-States/time\nSnippet: Current local time in United States ; EDT \u00b7 New York \u00b7 Philadelphia \u00b7 Jacksonville \u00b7 Columbus. 3:25 ; CDT \u00b7 Chicago \u00b7 Houston \u00b7 San Antonio \u00b7 Dallas. 2:25 ; MDT.\n\n[3] The Time Now: What Time Is It\nURL: https://www.thetimenow.com\nSnippet: Find out current local time in any time zone of the world with our world clock. Reliable tool for when traveling or calling abroad with local time and\n\n[4] LIVE | Clock / Current time in Central, US / what time is it now\nURL: https://www.youtube.com/watch?v=G1upg29qtco\nSnippet: This livestream is for the Central Standard Time (CST) timezone. This includes the following cities: Aberdeen, Pascagoula, Abilene,\n\n[5] Current Local Time in Nashville, United States (Davidson County ...\nURL: https://www.zeitverschiebung.net/en/city/4644585\nSnippet: What day is it in Nashville right now? Monday (June 29, 2026). Central Daylight Time (North America)CDT. Time Zone. America/ Chicago. Universal Time Coordinated\n"
+            }
+          ],
+          "toolCallId": "call_function_u7daem0ka8l6_1",
+          "toolName": "web_search"
+        },
+        "timestamp": 1782902746.219677
+      },
+      {
+        "type": "message",
+        "id": "b126219e-a2d2-4f3d-b79f-94e64e5391b6",
+        "parentId": "b8ab6811-c8c8-4596-9849-9fc9b4b771a6",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782902754359,
+          "content": [
+            {
+              "type": "text",
+              "text": "Based on the search results, I can see approximate times but they're not real-time. The results show:\n\n- **Eastern Daylight Time (EDT)**: ~3:25 PM\n- **Central Daylight Time (CDT)**: ~2:25 PM\n- Date shown: **Monday, June 29, 2026** (close to today, July 1, 2026)\n\nHowever, web searches aren't the best for getting the exact current time. The most reliable way is to check your local system clock \u2014 which based on this system's date would be around **July 1, 2026**.\n\nIs there something specific about time (time zones, world clock, etc.) you'd like me to look up?"
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782902754.35987
+      }
+    ],
+    "leaves": [
+      {
+        "type": "message",
+        "id": "b126219e-a2d2-4f3d-b79f-94e64e5391b6",
+        "parentId": "b8ab6811-c8c8-4596-9849-9fc9b4b771a6",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782902754359,
+          "content": [
+            {
+              "type": "text",
+              "text": "Based on the search results, I can see approximate times but they're not real-time. The results show:\n\n- **Eastern Daylight Time (EDT)**: ~3:25 PM\n- **Central Daylight Time (CDT)**: ~2:25 PM\n- Date shown: **Monday, June 29, 2026** (close to today, July 1, 2026)\n\nHowever, web searches aren't the best for getting the exact current time. The most reliable way is to check your local system clock \u2014 which based on this system's date would be around **July 1, 2026**.\n\nIs there something specific about time (time zones, world clock, etc.) you'd like me to look up?"
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782902754.35987
       }
     ],
     "activeModel": "Unknown Model",
     "activeProvider": "Unknown Provider",
-    "size": 2060,
+    "size": 5348,
     "timestamp": 1782901428.155255
   }
 };
@@ -526,6 +698,7 @@
                 activeSessionFile: null,
                 activeLeafId: null,
                 viewMode: "path", // 'path' or 'flat'
+                layoutMode: "full", // 'full' or 'compact'
                 activeFilters: {
                     user: true,
                     assistant: true,
@@ -550,6 +723,9 @@
             const branchSelect = document.getElementById("branch-select");
             const viewPathBtn = document.getElementById("view-path");
             const viewFlatBtn = document.getElementById("view-flat");
+            const layoutFullBtn = document.getElementById("layout-full");
+            const layoutCompactBtn = document.getElementById("layout-compact");
+            const syncSessionBtn = document.getElementById("sync-session-btn");
             const filterTextInput = document.getElementById("filter-text");
             const welcomePanel = document.getElementById("welcome-panel");
 
@@ -824,6 +1000,57 @@
                     "px-2.5 py-1 rounded bg-brand-border text-brand-textMuted text-xs font-semibold hover:text-white transition";
                 renderTimeline();
                 calculateStats();
+            });
+
+            // Layout Mode Toggle
+            layoutFullBtn.addEventListener("click", () => {
+                state.layoutMode = "full";
+                layoutFullBtn.className =
+                    "px-2.5 py-1 rounded bg-brand-green text-black text-xs font-bold transition";
+                layoutCompactBtn.className =
+                    "px-2.5 py-1 rounded bg-brand-border text-brand-textMuted text-xs font-semibold hover:text-white transition";
+                renderTimeline();
+            });
+
+            layoutCompactBtn.addEventListener("click", () => {
+                state.layoutMode = "compact";
+                layoutCompactBtn.className =
+                    "px-2.5 py-1 rounded bg-brand-green text-black text-xs font-bold transition";
+                layoutFullBtn.className =
+                    "px-2.5 py-1 rounded bg-brand-border text-brand-textMuted text-xs font-semibold hover:text-white transition";
+                renderTimeline();
+            });
+
+            // Real-Time Sync File Button Handler
+            syncSessionBtn.addEventListener("click", async () => {
+                if (!state.activeSessionFile || !state.dirHandle) return;
+
+                const filename = state.activeSessionFile;
+                syncSessionBtn.classList.add("opacity-50", "pointer-events-none");
+                syncSessionBtn.querySelector("i").classList.add("fa-spin");
+
+                try {
+                    const fileHandle = await state.dirHandle.getFileHandle(filename);
+                    const file = await fileHandle.getFile();
+                    const text = await file.text();
+
+                    parseAndStoreSession(filename, text, file.size, file.lastModified / 1000);
+
+                    const session = state.sessions[filename];
+                    if (session && session.leaves.length > 0) {
+                        const leafExists = session.leaves.some(l => l.id === state.activeLeafId);
+                        if (!leafExists) {
+                            state.activeLeafId = session.leaves[0].id;
+                        }
+                    }
+
+                    selectSession(filename);
+                } catch (err) {
+                    console.error("Failed to sync session file:", err);
+                } finally {
+                    syncSessionBtn.classList.remove("opacity-50", "pointer-events-none");
+                    syncSessionBtn.querySelector("i").classList.remove("fa-spin");
+                }
             });
 
             // Filter Buttons
@@ -1187,10 +1414,112 @@
                 }
             }
 
+            // Unified Card Container Builder (Supports Full and Collapsible Compact Layouts)
+            function createCardContainer(entry, role, roleLabel, iconClass, borderClass, bgClass, summaryText, buildBodyFn) {
+                const container = document.createElement("div");
+
+                if (state.layoutMode === "full") {
+                    container.className = `${bgClass} rounded-xl border ${borderClass} p-5 space-y-4 shadow-lg transition hover:shadow-xl`;
+
+                    // Render Full Header
+                    const header = document.createElement("div");
+                    header.className = 'flex items-center justify-between border-b border-brand-border/50 pb-3 shrink-0';
+
+                    let modelBadge = '';
+                    if (role === 'assistant' && entry.message && entry.message.model) {
+                        modelBadge = `<span class="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded font-mono">${entry.message.model}</span>`;
+                    }
+
+                    let usageBadge = '';
+                    if (entry.usage && entry.usage.totalTokens) {
+                        usageBadge = `<span class="text-[10px] bg-brand-border text-brand-textMuted px-2 py-0.5 rounded"><i class="fa-solid fa-coins mr-1"></i>${entry.usage.totalTokens} tokens</span>`;
+                    }
+
+                    header.innerHTML = `
+                        <div class="flex items-center space-x-2.5">
+                            <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex items-center justify-center w-8 h-8">
+                                <i class="${iconClass}"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold text-white block">${roleLabel}</span>
+                                <span class="text-[10px] text-brand-textMuted font-mono">ID: ${entry.id.substring(0, 8)}...</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${modelBadge}
+                            ${usageBadge}
+                            <span class="text-[10px] text-brand-textMuted"><i class="fa-solid fa-clock mr-1"></i>${new Date(entry.timestamp * 1000).toLocaleTimeString()}</span>
+                        </div>
+                    `;
+                    container.appendChild(header);
+
+                    // Render Body
+                    const body = document.createElement("div");
+                    body.className = 'text-sm prose max-w-none text-gray-200';
+                    buildBodyFn(body);
+                    container.appendChild(body);
+                } else {
+                    // Compact Mode
+                    container.className = `border ${borderClass} rounded-xl overflow-hidden bg-brand-panelBg/30 shadow-md transition hover:border-brand-green/30`;
+
+                    const headerRow = document.createElement("div");
+                    headerRow.className = "flex items-center justify-between p-3 cursor-pointer hover:bg-brand-panelBg/50 transition select-none";
+
+                    let modelBadge = '';
+                    if (role === 'assistant' && entry.message && entry.message.model) {
+                        modelBadge = `<span class="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded font-mono shrink-0">${entry.message.model}</span>`;
+                    }
+
+                    let usageBadge = '';
+                    if (entry.usage && entry.usage.totalTokens) {
+                        usageBadge = `<span class="text-[10px] bg-brand-border text-brand-textMuted px-2 py-0.5 rounded shrink-0"><i class="fa-solid fa-coins mr-1"></i>${entry.usage.totalTokens} tokens</span>`;
+                    }
+
+                    let badgeColorClass = 'bg-brand-border text-brand-textMuted';
+                    if (role === 'user') badgeColorClass = 'bg-brand-green/10 text-brand-green border border-brand-green/20';
+                    else if (role === 'assistant') badgeColorClass = 'bg-purple-500/10 text-purple-400 border border-purple-500/20';
+                    else if (role === 'toolResult') badgeColorClass = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+                    else if (role === 'bashExecution') badgeColorClass = 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20';
+                    else if (role === 'compaction') badgeColorClass = 'bg-brand-border text-brand-textMuted';
+
+                    headerRow.innerHTML = `
+                        <div class="flex items-center space-x-3 truncate flex-1 mr-4">
+                            <span class="text-[11px] text-brand-textMuted font-mono w-16 shrink-0">${new Date(entry.timestamp * 1000).toLocaleTimeString()}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded font-semibold shrink-0 ${badgeColorClass}">${roleLabel}</span>
+                            <span class="text-[10px] text-brand-textMuted font-mono shrink-0 hidden sm:inline">ID: ${entry.id.substring(0, 8)}...</span>
+                            <span class="text-xs text-gray-300 truncate font-medium flex-1">${escapeHtml(summaryText)}</span>
+                        </div>
+                        <div class="flex items-center space-x-2 shrink-0">
+                            ${modelBadge}
+                            ${usageBadge}
+                            <i class="fa-solid fa-chevron-down text-xs text-brand-textMuted transition-transform duration-200 chevron"></i>
+                        </div>
+                    `;
+
+                    const expandableContent = document.createElement("div");
+                    expandableContent.className = "hidden border-t border-brand-border p-5 bg-brand-panelBg/10";
+
+                    const body = document.createElement("div");
+                    body.className = 'text-sm prose max-w-none text-gray-200';
+                    buildBodyFn(body);
+                    expandableContent.appendChild(body);
+
+                    headerRow.addEventListener("click", () => {
+                        expandableContent.classList.toggle("hidden");
+                        headerRow.querySelector(".chevron").classList.toggle("rotate-180");
+                        Prism.highlightAllUnder(expandableContent);
+                    });
+
+                    container.appendChild(headerRow);
+                    container.appendChild(expandableContent);
+                }
+
+                timeline.appendChild(container);
+            }
+
             // Render Message Card
             function renderMessageCard(entry) {
                 const role = entry.message.role;
-                const card = document.createElement("div");
 
                 let borderClass = "border-brand-border";
                 let iconClass = "fa-solid fa-user text-brand-green";
@@ -1219,162 +1548,152 @@
                     roleLabel = "Local Bash Execution";
                 }
 
-                card.className = `${bgClass} rounded-xl border ${borderClass} p-5 space-y-4 shadow-lg transition hover:shadow-xl`;
+                // Build detailed summary text for compact view
+                let summaryText = "";
+                if (role === "user") {
+                    summaryText = getMessageContentText(entry.message.content);
+                } else if (role === "assistant") {
+                    const textVal = getMessageContentText(entry.message.content);
+                    const toolCallBlocks = entry.message.content && Array.isArray(entry.message.content)
+                        ? entry.message.content.filter(b => b.type === "toolCall")
+                        : [];
 
-                const header = document.createElement("div");
-                header.className =
-                    "flex items-center justify-between border-b border-brand-border/50 pb-3 shrink-0";
-
-                let modelBadge = "";
-                if (role === "assistant" && entry.model) {
-                    modelBadge = `<span class="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded font-mono">${entry.model}</span>`;
-                }
-
-                let usageBadge = "";
-                if (entry.usage && entry.usage.totalTokens) {
-                    usageBadge = `<span class="text-[10px] bg-brand-border text-brand-textMuted px-2 py-0.5 rounded"><i class="fa-solid fa-coins mr-1"></i>${entry.usage.totalTokens} tokens</span>`;
-                }
-
-                header.innerHTML = `
-                <div class="flex items-center space-x-2.5">
-                    <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex items-center justify-center w-8 h-8">
-                        <i class="${iconClass}"></i>
-                    </div>
-                    <div>
-                        <span class="text-sm font-bold text-white block">${roleLabel}</span>
-                        <span class="text-[10px] text-brand-textMuted font-mono">ID: ${entry.id.substring(0, 8)}...</span>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    ${modelBadge}
-                    ${usageBadge}
-                    <span class="text-[10px] text-brand-textMuted"><i class="fa-solid fa-clock mr-1"></i>${new Date(entry.timestamp * 1000).toLocaleTimeString()}</span>
-                </div>
-            `;
-                card.appendChild(header);
-
-                const body = document.createElement("div");
-                body.className = "text-sm prose max-w-none text-gray-200";
-
-                if (role === "user" || role === "assistant") {
-                    const thinkingBlock =
-                        entry.message.content &&
-                        Array.isArray(entry.message.content)
-                            ? entry.message.content.find(
-                                  (b) => b.type === "thinking",
-                              )
-                            : null;
-
-                    if (thinkingBlock && thinkingBlock.thinking) {
-                        const thinkDiv = document.createElement("div");
-                        thinkDiv.className =
-                            "bg-brand-darkBg border border-brand-border rounded-lg p-4 mb-4 text-xs text-brand-textMuted font-mono space-y-2";
-                        thinkDiv.innerHTML = `
-                        <div class="flex items-center justify-between border-b border-brand-border/50 pb-1.5 cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
-                            <span class="font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-brain mr-1.5"></i>Thinking Process</span>
-                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                        </div>
-                        <div class="whitespace-pre-wrap leading-relaxed">${escapeHtml(thinkingBlock.thinking)}</div>
-                    `;
-                        body.appendChild(thinkDiv);
-                    }
-
-                    const textVal = getMessageContentText(
-                        entry.message.content,
-                    );
-                    const textDiv = document.createElement("div");
-                    textDiv.innerHTML = marked.parse(textVal);
-                    body.appendChild(textDiv);
-
-                    if (
-                        entry.message.tool_calls &&
-                        entry.message.tool_calls.length > 0
-                    ) {
-                        entry.message.tool_calls.forEach((tc) => {
-                            const tcDiv = document.createElement("div");
-                            tcDiv.className =
-                                "bg-purple-500/5 border border-purple-500/20 rounded-lg p-4 mt-4 space-y-2";
-                            tcDiv.innerHTML = `
-                            <div class="flex items-center space-x-2 text-xs font-bold text-purple-400">
-                                <i class="fa-solid fa-gears"></i>
-                                <span>Requested Tool Call: <span class="underline font-mono">${tc.name}</span></span>
-                            </div>
-                            <pre class="language-json"><code class="language-json">${JSON.stringify(tc.arguments, null, 2)}</code></pre>
-                        `;
-                            body.appendChild(tcDiv);
-                        });
+                    if (toolCallBlocks.length > 0) {
+                        const calls = toolCallBlocks.map(tc => `${tc.name}(${JSON.stringify(tc.arguments)})`).join(", ");
+                        summaryText = `🔧 Call: ${calls}`;
+                        if (textVal) {
+                            summaryText += ` | ${textVal}`;
+                        }
+                    } else {
+                        summaryText = textVal;
                     }
                 } else if (role === "toolResult") {
-                    const content = entry.message.content;
-                    let toolName = "Unknown Tool";
-                    let output = "";
-
-                    if (typeof content === "object") {
-                        toolName = content.toolName || "Tool";
-                        output = content.output || "";
-                    } else {
-                        output = content;
-                    }
-
-                    const toolDiv = document.createElement("div");
-                    toolDiv.className = "space-y-3";
-                    toolDiv.innerHTML = `
-                    <div class="flex items-center space-x-2 text-xs font-bold text-blue-400">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <span>Tool Output from: <span class="font-mono underline">${toolName}</span></span>
-                    </div>
-                    <pre class="language-markdown"><code class="language-markdown">${escapeHtml(output)}</code></pre>
-                `;
-                    body.appendChild(toolDiv);
+                    const toolName = entry.message.toolName || "Tool";
+                    const output = getMessageContentText(entry.message.content);
+                    summaryText = `[${toolName}] ${output}`;
                 } else if (role === "bashExecution") {
                     const content = entry.message.content;
                     let command = "bash";
                     let output = "";
-
-                    if (typeof content === "object") {
+                    if (content && typeof content === "object") {
                         command = content.command || "";
                         output = content.output || "";
                     } else {
-                        output = content;
+                        output = content || "";
                     }
-
-                    const bashDiv = document.createElement("div");
-                    bashDiv.className = "space-y-3";
-                    bashDiv.innerHTML = `
-                    <div class="bg-brand-darkBg border border-brand-border rounded-lg p-3 font-mono text-xs text-yellow-400 flex items-center space-x-2">
-                        <i class="fa-solid fa-terminal"></i>
-                        <span>$ ${escapeHtml(command)}</span>
-                    </div>
-                    <pre class="language-bash"><code class="language-bash">${escapeHtml(output)}</code></pre>
-                `;
-                    body.appendChild(bashDiv);
+                    summaryText = `$ ${command} | ${output}`;
                 }
 
-                card.appendChild(body);
-                timeline.appendChild(card);
+                createCardContainer(entry, role, roleLabel, iconClass, borderClass, bgClass, summaryText, (body) => {
+                    if (role === "user" || role === "assistant") {
+                        const thinkingBlock =
+                            entry.message.content &&
+                            Array.isArray(entry.message.content)
+                                ? entry.message.content.find(
+                                      (b) => b.type === "thinking",
+                                  )
+                                : null;
+
+                        if (thinkingBlock && thinkingBlock.thinking) {
+                            const thinkDiv = document.createElement("div");
+                            thinkDiv.className =
+                                "bg-brand-darkBg border border-brand-border rounded-lg p-4 mb-4 text-xs text-brand-textMuted font-mono space-y-2";
+                            thinkDiv.innerHTML = `
+                            <div class="flex items-center justify-between border-b border-brand-border/50 pb-1.5 cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                                <span class="font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-brain mr-1.5"></i>Thinking Process</span>
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                            <div class="whitespace-pre-wrap leading-relaxed">${escapeHtml(thinkingBlock.thinking)}</div>
+                        `;
+                            body.appendChild(thinkDiv);
+                        }
+
+                        const textVal = getMessageContentText(
+                            entry.message.content,
+                        );
+                        if (textVal) {
+                            const textDiv = document.createElement("div");
+                            textDiv.innerHTML = marked.parse(textVal);
+                            body.appendChild(textDiv);
+                        }
+
+                        // Render Tool Calls from content blocks
+                        const toolCallBlocks = entry.message.content && Array.isArray(entry.message.content)
+                            ? entry.message.content.filter(b => b.type === "toolCall")
+                            : [];
+
+                        if (toolCallBlocks.length > 0) {
+                            toolCallBlocks.forEach((tc) => {
+                                const tcDiv = document.createElement("div");
+                                tcDiv.className =
+                                    "bg-purple-500/5 border border-purple-500/20 rounded-lg p-4 mt-4 space-y-2";
+                                tcDiv.innerHTML = `
+                                <div class="flex items-center space-x-2 text-xs font-bold text-purple-400">
+                                    <i class="fa-solid fa-gears"></i>
+                                    <span>Requested Tool Call: <span class="underline font-mono">${tc.name}</span></span>
+                                </div>
+                                <pre class="language-json"><code class="language-json">${JSON.stringify(tc.arguments, null, 2)}</code></pre>
+                            `;
+                                body.appendChild(tcDiv);
+                            });
+                        }
+                    } else if (role === "toolResult") {
+                        const toolName = entry.message.toolName || "Tool";
+                        const output = getMessageContentText(entry.message.content);
+
+                        const toolDiv = document.createElement("div");
+                        toolDiv.className = "space-y-3";
+                        toolDiv.innerHTML = `
+                        <div class="flex items-center space-x-2 text-xs font-bold text-blue-400">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Tool Output from: <span class="font-mono underline">${toolName}</span></span>
+                        </div>
+                        <pre class="language-markdown"><code class="language-markdown">${escapeHtml(output)}</code></pre>
+                    `;
+                        body.appendChild(toolDiv);
+                    } else if (role === "bashExecution") {
+                        const content = entry.message.content;
+                        let command = "bash";
+                        let output = "";
+
+                        if (content && typeof content === "object") {
+                            command = content.command || "";
+                            output = content.output || "";
+                        } else {
+                            output = content || "";
+                        }
+
+                        const bashDiv = document.createElement("div");
+                        bashDiv.className = "space-y-3";
+                        bashDiv.innerHTML = `
+                        <div class="bg-brand-darkBg border border-brand-border rounded-lg p-3 font-mono text-xs text-yellow-400 flex items-center space-x-2">
+                            <i class="fa-solid fa-terminal"></i>
+                            <span>$ ${escapeHtml(command)}</span>
+                        </div>
+                        <pre class="language-bash"><code class="language-bash">${escapeHtml(output)}</code></pre>
+                    `;
+                        body.appendChild(bashDiv);
+                    }
+                });
             }
 
             // Render Compaction Card
             function renderCompactionCard(entry) {
-                const card = document.createElement("div");
-                card.className =
-                    "bg-brand-panelBg/30 border border-brand-border rounded-xl p-4 flex items-start space-x-3.5 text-sm";
-                card.innerHTML = `
-                <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex items-center justify-center w-8 h-8 shrink-0">
-                    <i class="fa-solid fa-compress text-brand-green"></i>
-                </div>
-                <div class="space-y-1 flex-1">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-white">Semantic Context Compaction Event</span>
-                        <span class="text-[10px] text-brand-textMuted"><i class="fa-solid fa-clock mr-1"></i>${new Date(entry.timestamp * 1000).toLocaleTimeString()}</span>
-                    </div>
-                    <p class="text-xs text-brand-textMuted mb-2">Compacted previous context turns into a high-density summary block to optimize prompt budget.</p>
-                    <div class="bg-brand-darkBg/50 border border-brand-border/50 rounded-lg p-3 text-xs italic text-gray-300 leading-relaxed">
-                        "${entry.summary}"
-                    </div>
-                </div>
-            `;
-                timeline.appendChild(card);
+                const role = "compaction";
+                const roleLabel = "Compaction";
+                const iconClass = "fa-solid fa-compress text-brand-green";
+                const borderClass = "border-brand-border";
+                const bgClass = "bg-brand-panelBg/30";
+                const summaryText = entry.summary;
+
+                createCardContainer(entry, role, roleLabel, iconClass, borderClass, bgClass, summaryText, (body) => {
+                    body.innerHTML = `
+                        <p class="text-xs text-brand-textMuted mb-2">Compacted previous context turns into a high-density summary block to optimize prompt budget.</p>
+                        <div class="bg-brand-darkBg/50 border border-brand-border/50 rounded-lg p-3 text-xs italic text-gray-300 leading-relaxed">
+                            "${entry.summary}"
+                        </div>
+                    `;
+                });
             }
 
             // Render Model Change Card
