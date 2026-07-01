@@ -189,8 +189,6 @@ class SessionManager:
         usage: Optional[Dict] = None,
         tool_call_id: Optional[str] = None,
         tool_name: Optional[str] = None,
-        model: Optional[str] = None,
-        provider: Optional[str] = None,
     ) -> str:
         """
         Append a new message (user, assistant, or tool) to the tree, returning its ID.
@@ -210,8 +208,8 @@ class SessionManager:
             elif isinstance(content, list):
                 blocks.extend(content)
             message_obj["content"] = blocks
-            message_obj["provider"] = provider or "pocket_pi"
-            message_obj["model"] = model or "active_model"
+            message_obj["provider"] = "pocket_pi"
+            message_obj["model"] = "active_model"
             if usage:
                 message_obj["usage"] = usage
         elif role == "toolResult":
