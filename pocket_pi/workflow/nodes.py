@@ -1090,14 +1090,26 @@ Current Date: {current_date}
         # Displays assistant's standard text output inside a response box
         if result.get("text"):
             response_content = result["text"].strip()
-            console.print(
-                Panel(
-                    Markdown(response_content),
-                    title="🤖 Response",
-                    title_align="left",
-                    border_style="bold rgb(0,200,100)",
+            if result.get("tool_calls"):
+                # If there are tool calls, print the text as intermediate thoughts/reasoning
+                console.print(
+                    Panel(
+                        Markdown(response_content),
+                        title="💭 Thoughts",
+                        title_align="left",
+                        border_style="rgb(70,70,70)",
+                    )
                 )
-            )
+            else:
+                # If no tool calls, this is the final response
+                console.print(
+                    Panel(
+                        Markdown(response_content),
+                        title="🤖 Response",
+                        title_align="left",
+                        border_style="bold rgb(0,200,100)",
+                    )
+                )
 
         # Write response to the active session manager tree logs
         shared["last_response"] = result["text"]
