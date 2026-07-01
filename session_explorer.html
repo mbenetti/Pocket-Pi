@@ -127,11 +127,24 @@
                 </div>
             </div>
             <div class="flex items-center space-x-4">
-                <label
-                    class="cursor-pointer bg-brand-green hover:bg-brand-green/90 text-black font-semibold px-4 py-2 rounded-lg text-sm transition flex items-center space-x-2 shadow-lg shadow-brand-green/10"
+                <!-- Advanced Directory Picker Button (File System Access API) -->
+                <button
+                    id="picker-btn"
+                    class="bg-brand-green hover:bg-brand-green/90 text-black font-semibold px-4 py-2 rounded-lg text-sm transition flex items-center space-x-2 shadow-lg shadow-brand-green/10"
                 >
                     <i class="fa-solid fa-folder-open"></i>
-                    <span>Select .pocket_pi/sessions Folder</span>
+                    <span id="picker-btn-text"
+                        >Select .pocket_pi/sessions Folder</span
+                    >
+                </button>
+
+                <!-- Standard Folder Input Fallback (webkitdirectory) -->
+                <label
+                    id="fallback-label"
+                    class="hidden cursor-pointer bg-brand-green hover:bg-brand-green/90 text-black font-semibold px-4 py-2 rounded-lg text-sm transition flex items-center space-x-2 shadow-lg shadow-brand-green/10"
+                >
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Select Folder (Fallback)</span>
                     <input
                         type="file"
                         id="folder-input"
@@ -370,17 +383,28 @@
                 <div class="flex-1 overflow-y-auto p-6 space-y-6" id="timeline">
                     <div
                         class="h-full flex flex-col items-center justify-center text-brand-textMuted space-y-4"
+                        id="welcome-panel"
                     >
                         <i
-                            class="fa-solid fa-folder-open text-6xl opacity-20"
+                            class="fa-solid fa-folder-open text-6xl opacity-20 text-brand-green"
                         ></i>
-                        <div class="text-center">
-                            <h3 class="text-lg font-bold text-white mb-1">
-                                No Folder Selected
+                        <div class="text-center max-w-md space-y-2">
+                            <h3 class="text-lg font-bold text-white">
+                                Welcome to Pocket-Pi Session Explorer
                             </h3>
-                            <p class="text-sm">
-                                Click "Select .pocket_pi/sessions Folder" above
-                                to load and explore your sessions.
+                            <p class="text-sm leading-relaxed">
+                                Select your local
+                                <code
+                                    class="bg-brand-panelBg px-1.5 py-0.5 rounded text-brand-green"
+                                    >.pocket_pi/sessions</code
+                                >
+                                directory to view and debug your conversation
+                                logs.
+                            </p>
+                            <p class="text-xs opacity-60">
+                                Your directory selection is securely remembered
+                                locally in your browser for instant auto-loading
+                                next time!
                             </p>
                         </div>
                     </div>
@@ -403,9 +427,13 @@
                     bashExecution: true,
                 },
                 textFilter: "",
+                dirHandle: null, // Saved directory handle
             };
 
             // DOM Elements
+            const pickerBtn = document.getElementById("picker-btn");
+            const pickerBtnText = document.getElementById("picker-btn-text");
+            const fallbackLabel = document.getElementById("fallback-label");
             const folderInput = document.getElementById("folder-input");
             const sessionList = document.getElementById("session-list");
             const searchSessions = document.getElementById("search-sessions");
@@ -417,6 +445,7 @@
             const viewPathBtn = document.getElementById("view-path");
             const viewFlatBtn = document.getElementById("view-flat");
             const filterTextInput = document.getElementById("filter-text");
+            const welcomePanel = document.getElementById("welcome-panel");
 
             // Stats Elements
             const statsPanel = document.getElementById("stats-panel");
@@ -425,7 +454,169 @@
             const statMessages = document.getElementById("stat-messages");
             const statTools = document.getElementById("stat-tools");
 
-            // Handle Folder Selection
+            // IndexedDB Helper for Directory Handle Persistence
+            const dbName = "PocketPiExplorerDB";
+            const storeName = "handles";
+
+            function openDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(dbName, 1);
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        db.createObjectStore(storeName);
+                    };
+                    request.onsuccess = (e) => resolve(e.target.result);
+                    request.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            async function saveHandle(handle) {
+                try {
+                    const db = await openDB();
+                    const tx = db.transaction(storeName, "readwrite");
+                    const store = tx.objectStore(storeName);
+                    store.put(handle, "sessions_dir");
+                    return new Promise((resolve) => (tx.oncomplete = resolve));
+                } catch (err) {
+                    console.error("Failed to save handle to IndexedDB:", err);
+                }
+            }
+
+            async function getHandle() {
+                try {
+                    const db = await openDB();
+                    const tx = db.transaction(storeName, "readonly");
+                    const store = tx.objectStore(storeName);
+                    const request = store.get("sessions_dir");
+                    return new Promise(
+                        (resolve) =>
+                            (request.onsuccess = () => resolve(request.result)),
+                    );
+                } catch (err) {
+                    console.error("Failed to get handle from IndexedDB:", err);
+                    return null;
+                }
+            }
+
+            // Initialize App & Check for Saved Handle
+            window.addEventListener("DOMContentLoaded", async () => {
+                // Check if File System Access API is supported
+                if (typeof window.showDirectoryPicker !== "function") {
+                    // Fallback to standard webkitdirectory input
+                    pickerBtn.classList.add("hidden");
+                    fallbackLabel.classList.remove("hidden");
+                    return;
+                }
+
+                try {
+                    const savedHandle = await getHandle();
+                    if (savedHandle) {
+                        state.dirHandle = savedHandle;
+                        pickerBtnText.innerText =
+                            "Restore Access to .pocket_pi/sessions";
+                        pickerBtn.className =
+                            "bg-brand-green/20 hover:bg-brand-green/30 text-brand-green border border-brand-green/30 font-semibold px-4 py-2 rounded-lg text-sm transition flex items-center space-x-2";
+                    }
+                } catch (err) {
+                    console.log("No saved handle or IndexedDB error:", err);
+                }
+            });
+
+            // Click Handler for Directory Picker
+            pickerBtn.addEventListener("click", async () => {
+                try {
+                    if (state.dirHandle) {
+                        // Request permission to access the saved handle
+                        const permission =
+                            await state.dirHandle.requestPermission({
+                                mode: "read",
+                            });
+                        if (permission === "granted") {
+                            loadSessionsFromDirectoryHandle(state.dirHandle);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, open a new directory picker
+                    const handle = await window.showDirectoryPicker({
+                        mode: "read",
+                    });
+                    state.dirHandle = handle;
+                    await saveHandle(handle);
+                    loadSessionsFromDirectoryHandle(handle);
+                } catch (err) {
+                    console.error("Directory picker aborted or failed:", err);
+                }
+            });
+
+            // Load Sessions using File System Access API Handle
+            async function loadSessionsFromDirectoryHandle(dirHandle) {
+                state.sessions = {};
+                state.activeSessionFile = null;
+                state.activeLeafId = null;
+
+                sessionList.innerHTML = `
+                <div class="text-center py-8 text-brand-textMuted text-sm space-y-2">
+                    <i class="fa-solid fa-spinner fa-spin text-3xl text-brand-green"></i>
+                    <p>Reading and parsing session files...</p>
+                </div>`;
+
+                try {
+                    const jsonlFiles = [];
+                    for await (const entry of dirHandle.values()) {
+                        if (
+                            entry.kind === "file" &&
+                            entry.name.endsWith(".jsonl")
+                        ) {
+                            jsonlFiles.push(entry);
+                        }
+                    }
+
+                    if (jsonlFiles.length === 0) {
+                        sessionList.innerHTML = `
+                        <div class="text-center py-8 text-red-400 text-sm space-y-2">
+                            <i class="fa-solid fa-circle-exclamation text-3xl"></i>
+                            <p>No .jsonl session files found in this folder!</p>
+                        </div>`;
+                        return;
+                    }
+
+                    // Read and parse all files
+                    for (const fileHandle of jsonlFiles) {
+                        const file = await fileHandle.getFile();
+                        const text = await file.text();
+                        parseAndStoreSession(
+                            file.name,
+                            text,
+                            file.size,
+                            file.lastModified / 1000,
+                        );
+                    }
+
+                    pickerBtnText.innerText = "Change sessions Folder";
+                    pickerBtn.className =
+                        "bg-brand-panelBg hover:bg-brand-darkBg text-brand-textMuted border border-brand-border font-semibold px-4 py-2 rounded-lg text-sm transition flex items-center space-x-2";
+
+                    renderSessionList();
+
+                    // Auto-select first session
+                    const sortedSessions = Object.values(state.sessions).sort(
+                        (a, b) => b.timestamp - a.timestamp,
+                    );
+                    if (sortedSessions.length > 0) {
+                        selectSession(sortedSessions[0].filename);
+                    }
+                } catch (err) {
+                    console.error("Failed to read directory entries:", err);
+                    sessionList.innerHTML = `
+                    <div class="text-center py-8 text-red-400 text-sm space-y-2">
+                        <i class="fa-solid fa-circle-exclamation text-3xl"></i>
+                        <p>Failed to read folder contents.<br>Please try selecting it again.</p>
+                    </div>`;
+                }
+            }
+
+            // Handle Fallback Folder Selection (webkitdirectory)
             folderInput.addEventListener("change", async (e) => {
                 const files = e.target.files;
                 state.sessions = {};
@@ -438,7 +629,6 @@
                     <p>Reading and parsing session files...</p>
                 </div>`;
 
-                // Filter and read only .jsonl files
                 const jsonlFiles = Array.from(files).filter((f) =>
                     f.name.endsWith(".jsonl"),
                 );
@@ -452,7 +642,6 @@
                     return;
                 }
 
-                // Read and parse all files
                 for (const file of jsonlFiles) {
                     try {
                         const text = await file.text();
@@ -469,7 +658,6 @@
 
                 renderSessionList();
 
-                // Auto-select first session
                 const sortedSessions = Object.values(state.sessions).sort(
                     (a, b) => b.timestamp - a.timestamp,
                 );
