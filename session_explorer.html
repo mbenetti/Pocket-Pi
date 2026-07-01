@@ -783,35 +783,119 @@
           "model": "active_model"
         },
         "timestamp": 1782907094.224274
-      }
-    ],
-    "leaves": [
+      },
       {
         "type": "message",
-        "id": "e32710d9-5f4d-4521-af1a-980394c47fba",
-        "parentId": "5d75db1a-70eb-433e-822a-3ac936619329",
+        "id": "4f4e579e-868d-49c8-a1f2-1f6478cf44d8",
+        "parentId": "e32710d9-5f4d-4521-af1a-980394c47fba",
+        "message": {
+          "role": "toolResult",
+          "timestamp": 1782909868675,
+          "content": [
+            {
+              "type": "text",
+              "text": "--- [Bash Output (Exit Code: 127)] ---\n/bin/sh: ntpdate: command not found\n/bin/sh: timedatectl: command not found\n"
+            }
+          ],
+          "toolCallId": "call_4mkg844v",
+          "toolName": "bash"
+        },
+        "timestamp": 1782909868.67512
+      },
+      {
+        "type": "message",
+        "id": "03063797-091e-4024-8a93-ed3b9392344a",
+        "parentId": "4f4e579e-868d-49c8-a1f2-1f6478cf44d8",
         "message": {
           "role": "assistant",
-          "timestamp": 1782907094224,
+          "timestamp": 1782909870504,
           "content": [
             {
               "type": "toolCall",
-              "id": "call_4mkg844v",
+              "id": "call_5mgvzo4u",
               "name": "bash",
               "arguments": {
-                "command": "ntpdate -q pool.ntp.org 2>&1 || timedatectl"
+                "command": "curl -sI --max-time 5 https://www.google.com | grep -i \"^date\""
               }
             }
           ],
           "provider": "pocket_pi",
           "model": "active_model"
         },
-        "timestamp": 1782907094.224274
+        "timestamp": 1782909870.50476
+      },
+      {
+        "type": "message",
+        "id": "7942cdf9-5a5b-4800-96a7-cacdc2a69c4d",
+        "parentId": "03063797-091e-4024-8a93-ed3b9392344a",
+        "message": {
+          "role": "toolResult",
+          "timestamp": 1782909872588,
+          "content": [
+            {
+              "type": "text",
+              "text": "--- [Bash Output (Exit Code: 0)] ---\ndate: Wed, 01 Jul 2026 12:44:32 GMT\n"
+            }
+          ],
+          "toolCallId": "call_5mgvzo4u",
+          "toolName": "bash"
+        },
+        "timestamp": 1782909872.588778
+      },
+      {
+        "type": "message",
+        "id": "abf054b7-6ea3-4136-911f-a5c1e4aabbb5",
+        "parentId": "7942cdf9-5a5b-4800-96a7-cacdc2a69c4d",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782909875639,
+          "content": [
+            {
+              "type": "text",
+              "text": "Got it via Google's HTTP headers:\n\n**Internet time (GMT):** Wed, 01 Jul 2026 12:44:32 GMT\n\nThat's approximately **14:44:32 CEST** (UTC+2).\n\nNote: There's a small offset (~1 min) compared to your local system clock \u2014 your machine seems to be slightly ahead."
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782909875.639389
+      },
+      {
+        "type": "message",
+        "id": "bf15cc45-1b39-47ec-b243-4c7c14c25747",
+        "parentId": "abf054b7-6ea3-4136-911f-a5c1e4aabbb5",
+        "message": {
+          "role": "bashExecution",
+          "timestamp": 1782909878226,
+          "content": {
+            "command": "ls",
+            "output": "--- [Bash Output (Exit Code: 0)] ---\n__pycache__\nAGENT.md\narchive\nassets\ndocs\npocket_pi\npyproject.toml\nquick\nREADME.md\nsession_explorer.html\nTraining\ntrash\nupdate_explorer.py\nuv.lock\n",
+            "excludeFromContext": false
+          }
+        },
+        "timestamp": 1782909878.226801
+      }
+    ],
+    "leaves": [
+      {
+        "type": "message",
+        "id": "bf15cc45-1b39-47ec-b243-4c7c14c25747",
+        "parentId": "abf054b7-6ea3-4136-911f-a5c1e4aabbb5",
+        "message": {
+          "role": "bashExecution",
+          "timestamp": 1782909878226,
+          "content": {
+            "command": "ls",
+            "output": "--- [Bash Output (Exit Code: 0)] ---\n__pycache__\nAGENT.md\narchive\nassets\ndocs\npocket_pi\npyproject.toml\nquick\nREADME.md\nsession_explorer.html\nTraining\ntrash\nupdate_explorer.py\nuv.lock\n",
+            "excludeFromContext": false
+          }
+        },
+        "timestamp": 1782909878.226801
       }
     ],
     "activeModel": "Unknown Model",
     "activeProvider": "Unknown Provider",
-    "size": 7014,
+    "size": 9308,
     "timestamp": 1782906476.46344
   },
   "1782901428_c3d63061.jsonl": {
@@ -1831,10 +1915,18 @@
                     bgClass = "bg-brand-panelBg";
                     roleLabel = "Assistant Response";
                 } else if (role === "toolResult") {
-                    borderClass = "border-blue-500/20";
-                    iconClass = "fa-solid fa-screwdriver-wrench text-blue-400";
-                    bgClass = "bg-brand-darkBg border border-brand-border";
-                    roleLabel = "Tool Execution Results";
+                    const toolName = entry.message.toolName || "Tool";
+                    if (toolName === "bash") {
+                        borderClass = "border-yellow-500/20";
+                        iconClass = "fa-solid fa-terminal text-yellow-400";
+                        bgClass = "bg-brand-darkBg border border-brand-border";
+                        roleLabel = "Bash Tool Execution";
+                    } else {
+                        borderClass = "border-blue-500/20";
+                        iconClass = "fa-solid fa-screwdriver-wrench text-blue-400";
+                        bgClass = "bg-brand-darkBg border border-brand-border";
+                        roleLabel = "Tool Execution Results";
+                    }
                 } else if (role === "bashExecution") {
                     borderClass = "border-yellow-500/20";
                     iconClass = "fa-solid fa-terminal text-yellow-400";
@@ -1864,7 +1956,11 @@
                 } else if (role === "toolResult") {
                     const toolName = entry.message.toolName || "Tool";
                     const output = getMessageContentText(entry.message.content);
-                    summaryText = `[${toolName}] ${output}`;
+                    if (toolName === "bash") {
+                        summaryText = `$ [bash] | ${output}`;
+                    } else {
+                        summaryText = `[${toolName}] ${output}`;
+                    }
                 } else if (role === "bashExecution") {
                     const content = entry.message.content;
                     let command = "bash";
@@ -1962,16 +2058,29 @@
                         const toolName = entry.message.toolName || "Tool";
                         const output = getMessageContentText(entry.message.content);
 
-                        const toolDiv = document.createElement("div");
-                        toolDiv.className = "space-y-3";
-                        toolDiv.innerHTML = `
-                        <div class="flex items-center space-x-2 text-xs font-bold text-blue-400">
-                            <i class="fa-solid fa-circle-info"></i>
-                            <span>Tool Output from: <span class="font-mono underline">${toolName}</span></span>
-                        </div>
-                        <pre class="language-markdown"><code class="language-markdown">${escapeHtml(output)}</code></pre>
-                    `;
-                        body.appendChild(toolDiv);
+                        if (toolName === "bash") {
+                            const toolDiv = document.createElement("div");
+                            toolDiv.className = "space-y-3";
+                            toolDiv.innerHTML = `
+                            <div class="flex items-center space-x-2 text-xs font-bold text-yellow-400">
+                                <i class="fa-solid fa-terminal"></i>
+                                <span>Bash Tool Output:</span>
+                            </div>
+                            <pre class="language-bash"><code class="language-bash">${escapeHtml(output)}</code></pre>
+                        `;
+                            body.appendChild(toolDiv);
+                        } else {
+                            const toolDiv = document.createElement("div");
+                            toolDiv.className = "space-y-3";
+                            toolDiv.innerHTML = `
+                            <div class="flex items-center space-x-2 text-xs font-bold text-blue-400">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span>Tool Output from: <span class="font-mono underline">${toolName}</span></span>
+                            </div>
+                            <pre class="language-markdown"><code class="language-markdown">${escapeHtml(output)}</code></pre>
+                        `;
+                            body.appendChild(toolDiv);
+                        }
                     } else if (role === "bashExecution") {
                         const content = entry.message.content;
                         let command = "bash";
