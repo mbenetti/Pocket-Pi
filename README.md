@@ -141,7 +141,10 @@ Pocket-Pi includes a completely self-contained, serverless **Session Log Explore
 - **Branch-Aware Tree Navigation**: Reconstruct and explore any conversation branch (leaf) chronologically.
 - **Advanced Filtering**: Filter entries by role (User, Assistant, Tool Calls, Bash Executions) or search text content dynamically.
 - **Real-Time Sync**: Click **Sync File** to instantly reload the active session with any new entries in real-time.
-- **Zero Server Setup**: Pre-load all your sessions instantly by running `python3 update_explorer.py` and opening `session_explorer.html` in any browser!
+- **One-Click Launch**: Update your logs and open the dashboard instantly in your default browser by running:
+  ```bash
+  ./explore.sh
+  ```
 
 ---
 
