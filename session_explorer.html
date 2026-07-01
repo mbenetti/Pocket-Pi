@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket-Pi Session Explorer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Prism.js for Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            green: '#00ff64',
+                            darkBg: '#0d1117',
+                            panelBg: '#161b22',
+                            border: '#30363d',
+                            textMuted: '#8b949e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8b949e;
+        }
+        /* Markdown styling overrides */
+        .prose pre {
+            background-color: #1f242c !important;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 1em;
+        }
+        .prose code {
+            color: #ff7b72;
+            background-color: rgba(110, 118, 129, 0.2);
+            padding: 0.2em 0.4em;
+            border-radius: 6px;
+            font-size: 85%;
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+        }
+        .prose p {
+            margin-bottom: 1em;
+            line-height: 1.6;
+        }
+        .prose ul, .prose ol {
+            margin-left: 1.5em;
+            margin-bottom: 1em;
+            list-style-type: decimal;
+        }
+        .prose ul {
+            list-style-type: disc;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-brand-panelBg border-b border-brand-border px-6 py-3 flex items-center justify-between shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="bg-brand-green/10 text-brand-green p-2 rounded-lg border border-brand-green/30">
+                <i class="fa-solid fa-microchip text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold text-white flex items-center">
+                    Pocket-Pi <span class="text-brand-green ml-1.5 text-xs px-2 py-0.5 rounded bg-brand-green/10 border border-brand-green/20">Session Explorer</span>
+                </h1>
+                <p class="text-xs text-brand-textMuted">Interactive tree-log visualizer & debugger</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <label class="cursor-pointer bg-brand-green hover:bg-brand-green/90 text-black font-semibold px-4 py-2 rounded-lg text-sm transition flex items-center space-x-2 shadow-lg shadow-brand-green/10">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>Load .jsonl Files</span>
+                <input type="file" id="file-input" multiple accept=".jsonl" class="hidden">
+            </label>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- Left Sidebar: Session List & Stats -->
+        <aside class="w-80 bg-brand-panelBg border-r border-brand-border flex flex-col overflow-hidden shrink-0">
+            <!-- Drag & Drop Zone / Search -->
+            <div class="p-4 border-b border-brand-border space-y-3">
+                <div id="drop-zone" class="border-2 border-dashed border-brand-border hover:border-brand-green/50 rounded-lg p-4 text-center cursor-pointer transition bg-brand-darkBg/50">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl mb-2 text-brand-textMuted"></i>
+                    <p class="text-xs text-brand-textMuted">Drag & drop your session <b>.jsonl</b> files here</p>
+                </div>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-brand-textMuted text-sm"></i>
+                    <input type="text" id="search-sessions" placeholder="Search sessions..." class="w-full bg-brand-darkBg border border-brand-border rounded-lg pl-9 pr-4 py-1.5 text-sm text-white focus:outline-none focus:border-brand-green transition">
+                </div>
+            </div>
+
+            <!-- Sessions List -->
+            <div class="flex-1 overflow-y-auto p-2 space-y-1" id="session-list">
+                <div class="text-center py-8 text-brand-textMuted text-sm space-y-2">
+                    <i class="fa-solid fa-receipt text-3xl opacity-40"></i>
+                    <p>No sessions loaded yet.<br>Load files to begin!</p>
+                </div>
+            </div>
+
+            <!-- Quick Stats Panel -->
+            <div id="stats-panel" class="p-4 border-t border-brand-border bg-brand-darkBg/50 hidden">
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-2 flex items-center justify-between">
+                    <span>Session Stats</span>
+                    <i class="fa-solid fa-chart-simple text-brand-green"></i>
+                </h3>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-brand-panelBg p-2 rounded border border-brand-border">
+                        <span class="text-brand-textMuted block">Total Tokens</span>
+                        <span class="font-bold text-white text-sm" id="stat-tokens">-</span>
+                    </div>
+                    <div class="bg-brand-panelBg p-2 rounded border border-brand-border">
+                        <span class="text-brand-textMuted block">Estimated Cost</span>
+                        <span class="font-bold text-brand-green text-sm" id="stat-cost">-</span>
+                    </div>
+                    <div class="bg-brand-panelBg p-2 rounded border border-brand-border">
+                        <span class="text-brand-textMuted block">Messages</span>
+                        <span class="font-bold text-white text-sm" id="stat-messages">-</span>
+                    </div>
+                    <div class="bg-brand-panelBg p-2 rounded border border-brand-border">
+                        <span class="text-brand-textMuted block">Tool Calls</span>
+                        <span class="font-bold text-white text-sm" id="stat-tools">-</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Main Panel: Filters, Branch Selector, Timeline -->
+        <main class="flex-1 flex flex-col bg-brand-darkBg overflow-hidden">
+
+            <!-- Active Session Header & Filter Bar -->
+            <div id="active-session-bar" class="bg-brand-panelBg border-b border-brand-border p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 shrink-0 hidden">
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <h2 class="text-base font-bold text-white" id="active-session-title">Untitled Session</h2>
+                        <span class="text-xs px-2 py-0.5 rounded bg-brand-border text-brand-textMuted" id="active-session-id">ID: -</span>
+                    </div>
+                    <p class="text-xs text-brand-textMuted flex items-center space-x-3">
+                        <span id="active-session-model"><i class="fa-solid fa-brain mr-1"></i> -</span>
+                        <span id="active-session-date"><i class="fa-solid fa-calendar-day mr-1"></i> -</span>
+                    </p>
+                </div>
+
+                <!-- Branch / Leaf Selector (For Tree Navigation) -->
+                <div class="flex items-center space-x-2">
+                    <label for="branch-select" class="text-xs text-brand-textMuted font-semibold shrink-0">Active Branch:</label>
+                    <select id="branch-select" class="bg-brand-darkBg border border-brand-border text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-brand-green transition max-w-xs">
+                        <!-- Options filled dynamically -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div id="filter-bar" class="bg-brand-panelBg/50 border-b border-brand-border px-6 py-2.5 flex flex-wrap items-center gap-4 shrink-0 hidden">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-brand-textMuted"><i class="fa-solid fa-filter mr-1"></i> Filter Roles:</span>
+                    <button data-role="user" class="filter-btn px-2.5 py-1 rounded bg-brand-green/10 text-brand-green border border-brand-green/20 text-xs font-semibold hover:bg-brand-green/20 transition">User</button>
+                    <button data-role="assistant" class="filter-btn px-2.5 py-1 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-semibold hover:bg-purple-500/20 transition">Assistant</button>
+                    <button data-role="toolResult" class="filter-btn px-2.5 py-1 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-semibold hover:bg-blue-500/20 transition">Tool Calls</button>
+                    <button data-role="bashExecution" class="filter-btn px-2.5 py-1 rounded bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs font-semibold hover:bg-yellow-500/20 transition">Bash</button>
+                </div>
+                <div class="h-4 w-px bg-brand-border"></div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-brand-textMuted">View Mode:</span>
+                    <button id="view-path" class="px-2.5 py-1 rounded bg-brand-green text-black text-xs font-bold transition">Path to Leaf (Active)</button>
+                    <button id="view-flat" class="px-2.5 py-1 rounded bg-brand-border text-brand-textMuted text-xs font-semibold hover:text-white transition">All Entries (Flat)</button>
+                </div>
+                <div class="ml-auto relative w-48">
+                    <i class="fa-solid fa-filter absolute left-2.5 top-2 text-brand-textMuted text-xs"></i>
+                    <input type="text" id="filter-text" placeholder="Filter content..." class="w-full bg-brand-darkBg border border-brand-border rounded px-7 py-1 text-xs text-white focus:outline-none focus:border-brand-green transition">
+                </div>
+            </div>
+
+            <!-- Timeline / Conversation Stream -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6" id="timeline">
+                <div class="h-full flex flex-col items-center justify-center text-brand-textMuted space-y-4">
+                    <i class="fa-solid fa-folder-open text-6xl opacity-20"></i>
+                    <div class="text-center">
+                        <h3 class="text-lg font-bold text-white mb-1">No Session Selected</h3>
+                        <p class="text-sm">Select a session from the sidebar or load new files to view the timeline.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // State Management
+        const state = {
+            sessions: {}, // filename -> session object
+            activeSessionFile: null,
+            activeLeafId: null,
+            viewMode: 'path', // 'path' or 'flat'
+            activeFilters: {
+                user: true,
+                assistant: true,
+                toolResult: true,
+                bashExecution: true
+            },
+            textFilter: ''
+        };
+
+        // DOM Elements
+        const fileInput = document.getElementById('file-input');
+        const dropZone = document.getElementById('drop-zone');
+        const sessionList = document.getElementById('session-list');
+        const searchSessions = document.getElementById('search-sessions');
+        const timeline = document.getElementById('timeline');
+        const activeSessionBar = document.getElementById('active-session-bar');
+        const filterBar = document.getElementById('filter-bar');
+        const branchSelect = document.getElementById('branch-select');
+        const viewPathBtn = document.getElementById('view-path');
+        const viewFlatBtn = document.getElementById('view-flat');
+        const filterTextInput = document.getElementById('filter-text');
+
+        // Stats Elements
+        const statsPanel = document.getElementById('stats-panel');
+        const statTokens = document.getElementById('stat-tokens');
+        const statCost = document.getElementById('stat-cost');
+        const statMessages = document.getElementById('stat-messages');
+        const statTools = document.getElementById('stat-tools');
+
+        // Initialize Drag and Drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-brand-green');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-brand-green');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-brand-green');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        searchSessions.addEventListener('input', renderSessionList);
+        filterTextInput.addEventListener('input', (e) => {
+            state.textFilter = e.target.value.toLowerCase();
+            renderTimeline();
+        });
+
+        // View Mode Toggle
+        viewPathBtn.addEventListener('click', () => {
+            state.viewMode = 'path';
+            viewPathBtn.className = "px-2.5 py-1 rounded bg-brand-green text-black text-xs font-bold transition";
+            viewFlatBtn.className = "px-2.5 py-1 rounded bg-brand-border text-brand-textMuted text-xs font-semibold hover:text-white transition";
+            renderTimeline();
+        });
+
+        viewFlatBtn.addEventListener('click', () => {
+            state.viewMode = 'flat';
+            viewFlatBtn.className = "px-2.5 py-1 rounded bg-brand-green text-black text-xs font-bold transition";
+            viewPathBtn.className = "px-2.5 py-1 rounded bg-brand-border text-brand-textMuted text-xs font-semibold hover:text-white transition";
+            renderTimeline();
+        });
+
+        // Filter Buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const role = btn.dataset.role;
+                state.activeFilters[role] = !state.activeFilters[role];
+
+                if (state.activeFilters[role]) {
+                    btn.classList.remove('opacity-50', 'line-through');
+                } else {
+                    btn.classList.add('opacity-50', 'line-through');
+                }
+                renderTimeline();
+            });
+        });
+
+        // Handle File Loading
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (!file.name.endsWith('.jsonl')) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    parseAndStoreSession(file.name, e.target.result);
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        // Parse JSONL and Store Session
+        function parseAndStoreSession(filename, rawText) {
+            const lines = rawText.split('\n');
+            const entries = [];
+
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                try {
+                    entries.push(JSON.parse(line));
+                } catch (err) {
+                    console.error("Error parsing line in " + filename, err);
+                }
+            });
+
+            if (entries.length === 0) return;
+
+            // Extract Session Metadata
+            const header = entries.find(e => e.type === 'session');
+            const sessionInfo = entries.find(e => e.type === 'session_info');
+            const modelChanges = entries.filter(e => e.type === 'model_change');
+
+            let displayName = sessionInfo ? sessionInfo.name : "Untitled Session";
+            let activeModel = "Unknown Model";
+            let activeProvider = "Unknown Provider";
+
+            if (modelChanges.length > 0) {
+                const lastChange = modelChanges[modelChanges.length - 1];
+                activeModel = lastChange.modelId;
+                activeProvider = lastChange.provider;
+            } else {
+                // Try to find model in messages
+                const msgWithModel = entries.find(e => e.type === 'message' && e.model);
+                if (msgWithModel) {
+                    activeModel = msgWithModel.model;
+                    activeProvider = msgWithModel.provider || "Unknown";
+                }
+            }
+
+            // Find all leaf nodes (nodes that are not parents of any other node)
+            const parentIds = new Set(entries.map(e => e.parentId).filter(id => id));
+            const leafNodes = entries.filter(e => e.id && !parentIds.has(e.id) && e.type === 'message');
+
+            // If no message leaves, fallback to any node without children
+            const allLeafNodes = leafNodes.length > 0 ? leafNodes : entries.filter(e => e.id && !parentIds.has(e.id));
+
+            // Store session
+            state.sessions[filename] = {
+                filename: filename,
+                displayName: displayName,
+                header: header,
+                entries: entries,
+                leaves: allLeafNodes,
+                activeModel: activeModel,
+                activeProvider: activeProvider,
+                timestamp: header ? header.timestamp : Date.now()
+            };
+
+            renderSessionList();
+
+            // Auto-select if it's the first loaded session
+            if (!state.activeSessionFile) {
+                selectSession(filename);
+            }
+        }
+
+        // Render Session List Sidebar
+        function renderSessionList() {
+            const query = searchSessions.value.toLowerCase();
+            sessionList.innerHTML = '';
+
+            const filteredSessions = Object.values(state.sessions).filter(s =>
+                s.displayName.toLowerCase().includes(query) || s.filename.toLowerCase().includes(query)
+            );
+
+            if (filteredSessions.length === 0) {
+                sessionList.innerHTML = `
+                    <div class="text-center py-8 text-brand-textMuted text-sm">
+                        <p>No matching sessions found.</p>
+                    </div>`;
+                return;
+            }
+
+            // Sort newest first
+            filteredSessions.sort((a, b) => b.timestamp - a.timestamp);
+
+            filteredSessions.forEach(s => {
+                const isActive = state.activeSessionFile === s.filename;
+                const dateStr = new Date(s.timestamp * 1000).toLocaleString();
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-lg cursor-pointer transition border ${
+                    isActive
+                        ? 'bg-brand-green/10 border-brand-green/30 text-white'
+                        : 'border-transparent hover:bg-brand-darkBg/50 text-brand-textMuted hover:text-white'
+                }`;
+
+                item.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-bold text-sm truncate max-w-[180px] ${isActive ? 'text-brand-green' : 'text-white'}">${s.displayName}</span>
+                        <span class="text-[10px] bg-brand-darkBg px-1.5 py-0.5 rounded border border-brand-border">${s.leaves.length} branch(es)</span>
+                    </div>
+                    <div class="text-[11px] flex justify-between">
+                        <span class="truncate max-w-[140px]">${s.activeModel}</span>
+                        <span>${s.entries.filter(e => e.type === 'message').length} msgs</span>
+                    </div>
+                    <div class="text-[10px] text-brand-textMuted mt-1.5 flex items-center justify-between">
+                        <span><i class="fa-solid fa-clock mr-1"></i>${dateStr}</span>
+                        <span class="font-mono text-[9px] opacity-60">${s.filename.substring(0, 12)}...</span>
+                    </div>
+                `;
+
+                item.addEventListener('click', () => selectSession(s.filename));
+                sessionList.appendChild(item);
+            });
+        }
+
+        // Select Active Session
+        function selectSession(filename) {
+            state.activeSessionFile = filename;
+            const session = state.sessions[filename];
+
+            // Default active leaf to the newest leaf
+            if (session.leaves.length > 0) {
+                state.activeLeafId = session.leaves[0].id;
+            } else {
+                state.activeLeafId = null;
+            }
+
+            // Show active elements
+            activeSessionBar.classList.remove('hidden');
+            filterBar.classList.remove('hidden');
+            statsPanel.classList.remove('hidden');
+
+            // Render active session info
+            document.getElementById('active-session-title').innerText = session.displayName;
+            document.getElementById('active-session-id').innerText = `File: ${session.filename}`;
+            document.getElementById('active-session-model').innerHTML = `<i class="fa-solid fa-brain mr-1.5 text-purple-400"></i> ${session.activeProvider}/${session.activeModel}`;
+            document.getElementById('active-session-date').innerHTML = `<i class="fa-solid fa-calendar-day mr-1.5 text-blue-400"></i> ${new Date(session.timestamp * 1000).toLocaleString()}`;
+
+            // Populate Branch Selector
+            branchSelect.innerHTML = '';
+            session.leaves.forEach((leaf, idx) => {
+                const opt = document.createElement('option');
+                opt.value = leaf.id;
+
+                // Try to find a good branch label (e.g., first user message or index)
+                let label = `Branch ${idx + 1}`;
+                const path = getPathToRoot(session.entries, leaf.id);
+                const firstUserMsg = path.find(e => e.type === 'message' && e.message && e.message.role === 'user');
+                if (firstUserMsg) {
+                    const content = getMessageContentText(firstUserMsg.message.content);
+                    label = `Branch ${idx + 1}: ${content.substring(0, 30)}${content.length > 30 ? '...' : ''}`;
+                }
+
+                opt.innerText = label;
+                if (leaf.id === state.activeLeafId) {
+                    opt.selected = true;
+                }
+                branchSelect.appendChild(opt);
+            });
+
+            branchSelect.onchange = (e) => {
+                state.activeLeafId = e.target.value;
+                renderTimeline();
+                calculateStats();
+            };
+
+            renderSessionList();
+            calculateStats();
+            renderTimeline();
+        }
+
+        // Calculate and Render Stats
+        function calculateStats() {
+            const session = state.sessions[state.activeSessionFile];
+            if (!session) return;
+
+            const path = state.viewMode === 'path'
+                ? getPathToRoot(session.entries, state.activeLeafId)
+                : session.entries;
+
+            const messages = path.filter(e => e.type === 'message');
+            const toolCalls = messages.filter(e => e.message && e.message.role === 'assistant' && e.message.tool_calls && e.message.tool_calls.length > 0);
+
+            // Calculate total tokens and cost
+            let totalTokens = 0;
+            let totalCost = 0.0;
+
+            path.forEach(e => {
+                if (e.usage) {
+                    totalTokens += e.usage.totalTokens || 0;
+                    // Rough cost estimate based on average pricing
+                    const input = e.usage.input || 0;
+                    const output = e.usage.output || 0;
+                    if (session.activeModel.includes('claude-3-7')) {
+                        totalCost += (input * 3.0 / 1000000) + (output * 15.0 / 1000000);
+                    } else if (session.activeModel.includes('gpt-4o')) {
+                        totalCost += (input * 2.5 / 1000000) + (output * 10.0 / 1000000);
+                    } else {
+                        totalCost += (input * 0.075 / 1000000) + (output * 0.3 / 1000000); // Gemini 3.5 Flash rate
+                    }
+                }
+            });
+
+            statTokens.innerText = totalTokens.toLocaleString();
+            statCost.innerText = totalCost > 0 ? `$${totalCost.toFixed(4)}` : 'Free/Local';
+            statMessages.innerText = messages.length;
+            statTools.innerText = toolCalls.length;
+        }
+
+        // Reconstruct Chronological Path to Root
+        function getPathToRoot(entries, leafId) {
+            const map = {};
+            entries.forEach(e => {
+                if (e.id) map[e.id] = e;
+            });
+
+            const path = [];
+            let currentId = leafId;
+            while (currentId && map[currentId]) {
+                path.unshift(map[currentId]); // Chronological order
+                currentId = map[currentId].parentId;
+            }
+            return path;
+        }
+
+        // Extract raw text from message content blocks
+        function getMessageContentText(content) {
+            if (typeof content === 'string') return content;
+            if (Array.isArray(content)) {
+                return content
+                    .filter(b => b.type === 'text')
+                    .map(b => b.text)
+                    .join('\n');
+            }
+            return '';
+        }
+
+        // Render Conversation Timeline
+        function renderTimeline() {
+            const session = state.sessions[state.activeSessionFile];
+            if (!session) return;
+
+            timeline.innerHTML = '';
+
+            const path = state.viewMode === 'path'
+                ? getPathToRoot(session.entries, state.activeLeafId)
+                : session.entries;
+
+            if (path.length === 0) {
+                timeline.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-brand-textMuted">
+                        <p>No entries found on this branch.</p>
+                    </div>`;
+                return;
+            }
+
+            path.forEach(entry => {
+                if (entry.type === 'message' && entry.message) {
+                    const role = entry.message.role;
+
+                    // Apply Filters
+                    if (role === 'user' && !state.activeFilters.user) return;
+                    if (role === 'assistant' && !state.activeFilters.assistant) return;
+                    if (role === 'toolResult' && !state.activeFilters.toolResult) return;
+                    if (role === 'bashExecution' && !state.activeFilters.bashExecution) return;
+
+                    const contentText = getMessageContentText(entry.message.content);
+                    if (state.textFilter && !contentText.toLowerCase().includes(state.textFilter)) return;
+
+                    renderMessageCard(entry);
+                } else if (entry.type === 'compaction') {
+                    renderCompactionCard(entry);
+                } else if (entry.type === 'model_change') {
+                    renderModelChangeCard(entry);
+                }
+            });
+
+            // Re-run Prism highlighting on newly rendered code blocks
+            Prism.highlightAllUnder(timeline);
+
+            if (timeline.children.length === 0) {
+                timeline.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-brand-textMuted py-12">
+                        <i class="fa-solid fa-filter-circle-xmark text-4xl mb-2 opacity-40"></i>
+                        <p>All entries filtered out. Adjust your filters above!</p>
+                    </div>`;
+            }
+        }
+
+        // Render Message Card
+        function renderMessageCard(entry) {
+            const role = entry.message.role;
+            const card = document.createElement('div');
+
+            let borderClass = 'border-brand-border';
+            let iconClass = 'fa-solid fa-user text-brand-green';
+            let bgClass = 'bg-brand-panelBg';
+            let roleLabel = 'User';
+
+            if (role === 'user') {
+                borderClass = 'border-brand-green/30';
+                iconClass = 'fa-solid fa-user text-brand-green';
+                bgClass = 'bg-brand-panelBg';
+                roleLabel = 'User Prompt';
+            } else if (role === 'assistant') {
+                borderClass = 'border-purple-500/30';
+                iconClass = 'fa-solid fa-robot text-purple-400';
+                bgClass = 'bg-brand-panelBg';
+                roleLabel = 'Assistant Response';
+            } else if (role === 'toolResult') {
+                borderClass = 'border-blue-500/20';
+                iconClass = 'fa-solid fa-screwdriver-wrench text-blue-400';
+                bgClass = 'bg-brand-darkBg border border-brand-border';
+                roleLabel = 'Tool Execution Results';
+            } else if (role === 'bashExecution') {
+                borderClass = 'border-yellow-500/20';
+                iconClass = 'fa-solid fa-terminal text-yellow-400';
+                bgClass = 'bg-brand-darkBg border border-brand-border';
+                roleLabel = 'Local Bash Execution';
+            }
+
+            card.className = `${bgClass} rounded-xl border ${borderClass} p-5 space-y-4 shadow-lg transition hover:shadow-xl`;
+
+            // Card Header
+            const header = document.createElement('div');
+            header.className = 'flex items-center justify-between border-b border-brand-border/50 pb-3 shrink-0';
+
+            let modelBadge = '';
+            if (role === 'assistant' && entry.model) {
+                modelBadge = `<span class="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded font-mono">${entry.model}</span>`;
+            }
+
+            let usageBadge = '';
+            if (entry.usage && entry.usage.totalTokens) {
+                usageBadge = `<span class="text-[10px] bg-brand-border text-brand-textMuted px-2 py-0.5 rounded"><i class="fa-solid fa-coins mr-1"></i>${entry.usage.totalTokens} tokens</span>`;
+            }
+
+            header.innerHTML = `
+                <div class="flex items-center space-x-2.5">
+                    <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex items-center justify-center w-8 h-8">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div>
+                        <span class="text-sm font-bold text-white block">${roleLabel}</span>
+                        <span class="text-[10px] text-brand-textMuted font-mono">ID: ${entry.id.substring(0, 8)}...</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    ${modelBadge}
+                    ${usageBadge}
+                    <span class="text-[10px] text-brand-textMuted"><i class="fa-solid fa-clock mr-1"></i>${new Date(entry.timestamp * 1000).toLocaleTimeString()}</span>
+                </div>
+            `;
+            card.appendChild(header);
+
+            // Card Body
+            const body = document.createElement('div');
+            body.className = 'text-sm prose max-w-none text-gray-200';
+
+            if (role === 'user' || role === 'assistant') {
+                // Render Thinking Block if present (e.g. Claude 3.7 reasoning)
+                const thinkingBlock = entry.message.content && Array.isArray(entry.message.content)
+                    ? entry.message.content.find(b => b.type === 'thinking')
+                    : null;
+
+                if (thinkingBlock && thinkingBlock.thinking) {
+                    const thinkDiv = document.createElement('div');
+                    thinkDiv.className = 'bg-brand-darkBg border border-brand-border rounded-lg p-4 mb-4 text-xs text-brand-textMuted font-mono space-y-2';
+                    thinkDiv.innerHTML = `
+                        <div class="flex items-center justify-between border-b border-brand-border/50 pb-1.5 cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                            <span class="font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-brain mr-1.5"></i>Thinking Process</span>
+                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </div>
+                        <div class="whitespace-pre-wrap leading-relaxed">${escapeHtml(thinkingBlock.thinking)}</div>
+                    `;
+                    body.appendChild(thinkDiv);
+                }
+
+                // Render Main Text Content
+                const textVal = getMessageContentText(entry.message.content);
+                const textDiv = document.createElement('div');
+                textDiv.innerHTML = marked.parse(textVal);
+                body.appendChild(textDiv);
+
+                // Render Tool Calls requested by Assistant
+                if (entry.message.tool_calls && entry.message.tool_calls.length > 0) {
+                    entry.message.tool_calls.forEach(tc => {
+                        const tcDiv = document.createElement('div');
+                        tcDiv.className = 'bg-purple-500/5 border border-purple-500/20 rounded-lg p-4 mt-4 space-y-2';
+                        tcDiv.innerHTML = `
+                            <div class="flex items-center space-x-2 text-xs font-bold text-purple-400">
+                                <i class="fa-solid fa-gears"></i>
+                                <span>Requested Tool Call: <span class="underline font-mono">${tc.name}</span></span>
+                            </div>
+                            <pre class="language-json"><code class="language-json">${JSON.stringify(tc.arguments, null, 2)}</code></pre>
+                        `;
+                        body.appendChild(tcDiv);
+                    });
+                }
+            } else if (role === 'toolResult') {
+                // Render Tool Execution Results
+                const content = entry.message.content;
+                let toolName = "Unknown Tool";
+                let output = "";
+
+                if (typeof content === 'object') {
+                    toolName = content.toolName || "Tool";
+                    output = content.output || "";
+                } else {
+                    output = content;
+                }
+
+                const toolDiv = document.createElement('div');
+                toolDiv.className = 'space-y-3';
+                toolDiv.innerHTML = `
+                    <div class="flex items-center space-x-2 text-xs font-bold text-blue-400">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>Tool Output from: <span class="font-mono underline">${toolName}</span></span>
+                    </div>
+                    <pre class="language-markdown"><code class="language-markdown">${escapeHtml(output)}</code></pre>
+                `;
+                body.appendChild(toolDiv);
+            } else if (role === 'bashExecution') {
+                // Render Bash Execution Results
+                const content = entry.message.content;
+                let command = "bash";
+                let output = "";
+
+                if (typeof content === 'object') {
+                    command = content.command || "";
+                    output = content.output || "";
+                } else {
+                    output = content;
+                }
+
+                const bashDiv = document.createElement('div');
+                bashDiv.className = 'space-y-3';
+                bashDiv.innerHTML = `
+                    <div class="bg-brand-darkBg border border-brand-border rounded-lg p-3 font-mono text-xs text-yellow-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-terminal"></i>
+                        <span>$ ${escapeHtml(command)}</span>
+                    </div>
+                    <pre class="language-bash"><code class="language-bash">${escapeHtml(output)}</code></pre>
+                `;
+                body.appendChild(bashDiv);
+            }
+
+            card.appendChild(body);
+            timeline.appendChild(card);
+        }
+
+        // Render Compaction Card
+        function renderCompactionCard(entry) {
+            const card = document.createElement('div');
+            card.className = 'bg-brand-panelBg/30 border border-brand-border rounded-xl p-4 flex items-start space-x-3.5 text-sm';
+            card.innerHTML = `
+                <div class="bg-brand-darkBg p-2 rounded-lg border border-brand-border flex items-center justify-center w-8 h-8 shrink-0">
+                    <i class="fa-solid fa-compress text-brand-green"></i>
+                </div>
+                <div class="space-y-1 flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-white">Semantic Context Compaction Event</span>
+                        <span class="text-[10px] text-brand-textMuted"><i class="fa-solid fa-clock mr-1"></i>${new Date(entry.timestamp * 1000).toLocaleTimeString()}</span>
+                    </div>
+                    <p class="text-xs text-brand-textMuted mb-2">Compacted previous context turns into a high-density summary block to optimize prompt budget.</p>
+                    <div class="bg-brand-darkBg/50 border border-brand-border/50 rounded-lg p-3 text-xs italic text-gray-300 leading-relaxed">
+                        "${entry.summary}"
+                    </div>
+                </div>
+            `;
+            timeline.appendChild(card);
+        }
+
+        // Render Model Change Card
+        function renderModelChangeCard(entry) {
+            const card = document.createElement('div');
+            card.className = 'flex justify-center';
+            card.innerHTML = `
+                <div class="bg-brand-panelBg border border-brand-border rounded-full px-4 py-1 text-xs text-brand-textMuted flex items-center space-x-2 shadow-sm">
+                    <i class="fa-solid fa-shuffle text-purple-400"></i>
+                    <span>Model Swapped to: <span class="font-bold text-white">${entry.provider}/${entry.modelId}</span></span>
+                    <span class="opacity-40 font-mono text-[10px]">(${new Date(entry.timestamp * 1000).toLocaleTimeString()})</span>
+                </div>
+            `;
+            timeline.appendChild(card);
+        }
+
+        // Escape HTML helper
+        function escapeHtml(text) {
+            if (typeof text !== 'string') return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
