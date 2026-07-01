@@ -2,35 +2,7 @@
 
 Pocket-Pi is engineered around a deterministic state-machine using **PocketFlow**. By orchestrating the LLM prompt-tool loop through discrete nodes rather than a single monolithic python function, we gain extreme traceability, easy debugging, and safe recovery paths.
 
----
-
-## 🗺️ System Node Diagram
-
-The following chart outlines the active PocketFlow wiring structure of the agent loop:
-
-```mermaid
-flowchart TD
-    ConsoleInput[1. ConsoleInputNode] --> InputRouter{Input Router}
-    
-    InputRouter -- "/quit" --> QuitNode[QuitNode]
-    InputRouter -- "/compact" --> CompactNode[CompactNode]
-    InputRouter -- "/model" --> ModelNode[ModelNode]
-    InputRouter -- "/resume" --> ResumeNode[ResumeNode]
-    InputRouter -- "/session" --> SessionNode[SessionNode]
-    InputRouter -- "/new" --> NewNode[NewNode]
-    InputRouter -- "/clear" --> ClearNode[ClearNode]
-    InputRouter -- "/login" --> LoginNode[LoginNode]
-    InputRouter -- "standard text" --> PlannerNode[2. PlannerNode]
-    
-    PlannerNode --> ToolRouter{Tool Dispatch Router}
-    ToolRouter -- "done / no tools" --> ConsoleInput
-    ToolRouter -- "execute tools" --> ExecToolsNode[3. ExecuteToolsNode]
-    ExecToolsNode --> PlannerNode
-```
-
----
-
-## ⚙️ PocketFlow Node Specifications
+## PocketFlow Node Specifications
 
 Every block in the state-machine is subclassed from `pocketflow.Node`. They communicate via a unified, shared dictionary (`shared`).
 
@@ -61,7 +33,7 @@ Every block in the state-machine is subclassed from `pocketflow.Node`. They comm
 
 ---
 
-## 🔄 The Compaction and Context Pruning Strategy
+## The Compaction and Context Pruning Strategy
 When `PlannerNode` runs, it detects token counts. If values exceed predefined buffer boundaries (or manual `/compact` is requested):
 - The agent isolates early conversational logs.
 - Synthesizes a semantic summary using a fast, cost-effective model call.

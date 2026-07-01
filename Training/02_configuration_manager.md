@@ -103,7 +103,7 @@ Pocket-pi resolves this by implementing a **Project Trust boundary**:
         return bool(trust_db.get(cwd_str, False))
 ```
 
-If the project folder is untrusted and `defaultProjectTrust` is `"ask"` (default), the `ConfigManager` pauses bootstrapping and draws a gorgeous, styled trust panel, asking the developer to confirm folder authorization before proceeding:
+If the project folder is untrusted and `defaultProjectTrust` is `"ask"` (default), the `ConfigManager` pauses bootstrapping and draws a trust panel, asking the developer to confirm folder authorization before proceeding:
 
 ```python
     def ask_and_save_project_trust(self) -> bool:

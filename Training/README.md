@@ -1,75 +1,102 @@
-# 🎓 Pocket-Pi: Developer Training Course
+# 🎓 Pocket-Pi: Unified Learning & Training Portal
 
-![Pocket-Pi Banner](../README_banner.png)
+Welcome to the **Pocket-Pi Developer Learning & Training Portal**! This centralized directory compiles three independent, complementary learning tracks designed to onboard developers, software architects, and AI agents into the codebase and design paradigms of the Pocket-Pi coding agent harness.
 
-Welcome to the **Pocket-Pi Developer Training Curriculum**! This course is designed specifically for software developers and data scientists who are familiar with Python, but are new to the [PocketFlow](https://github.com/The-Pocket/PocketFlow) state-machine workflow orchestration framework.
-
-Through this series of deep-dive modules, you will learn how to build, maintain, and extend a complete,  a toy terminal coding assistant harness. We will trace every file, class, and logic boundary in **pocket-pi**—revealing how complex loops, structured LLM connectors, and filesystem operations are orchestrated beautifully using a declarative state-machine.
+Whether you want to build the state-machine from scratch, get a high-level visual analogy-driven overview of the features, or dive straight into low-level Python function and class definitions, choose your starting track below.
 
 ---
 
-## 🗺️ Visual Course Syllabus / Directory Map
+## 🗺️ The Three Learning Pathways
 
 ```mermaid
 flowchart TD
-    Index[Training/README.md - Course Index] --> M1[Module 1 - PocketFlow Core Abstractions]
-    Index --> M2[Module 2 - Config & Project Trust Manager]
-    Index --> M3[Module 3 - Tree-based Session Manager]
-    Index --> M4[Module 4 - Unified File, Bash & Search Tools]
-    Index --> M5[Module 5 - Workflow Nodes & Context Pruners]
-    Index --> M6[Module 6 - Graph Wiring & App Bootstrapping]
+    Index[_Training/README.md] --> T1["Track 1: Hands-On Curriculum"]
+    Index --> T2["Track 2: Architect's Analogy Guide"]
+    Index --> T3["Track 3: File-Level Abstractions Deep-Dive"]
+
+    subgraph "Track 1: Hands-On"
+        T1 --> M1[Module 1: Basics] --> M2[Module 2: Config] --> M3[Module 3: Session Trees]
+        M3 --> M4[Module 4: Unified Tools] --> M5[Module 5: Bot & Prompts] --> M6[Module 6: Graph Wiring]
+    end
+
+    subgraph "Track 2: System Features"
+        T2 --> F1["14 Chapters: Concepts, Analogies & Diagrams"]
+    end
+
+    subgraph "Track 3: Code Deep-Dive"
+        T3 --> C1["8 Sections: File Bindings & Class Internals"]
+    end
+    
+    style T1 fill:#003466,stroke:#3b5998,stroke-width:2px,color:#fff
+    style T2 fill:#006634,stroke:#59983b,stroke-width:2px,color:#fff
+    style T3 fill:#660034,stroke:#983b59,stroke-width:2px,color:#fff
 ```
 
 ---
 
-## 📚 Curriculum Index
+## 📚 Tracks Directory
 
-Please follow the modules in numerical order for the best learning journey:
+### 🚀 Track 1: Hands-On Developer Curriculum (Modules 1-6)
+*Recommended for: Developers who want to build, wire, and execute the agent from the ground up.*
 
-### 📑 [Module 1: PocketFlow Core Abstractions](01_pocketflow_basics.md)
-*   What is PocketFlow? Understanding State-Machine Workflows.
-*   The Three Pillar Abstractions: `Node`, `Flow`, and `Shared State`.
-*   Writing Nodes (`prep`, `exec`, `post`).
-*   Declaring graph routing and transitions using the `>>` and `-` operators.
-
-### ⚙️ [Module 2: Config & Project Trust Manager](02_configuration_manager.md)
-*   Hierarchical JSON Settings parsing (`settings.json` local vs. global).
-*   Replicating the **Project Trust standard**: prompt prompts, writing `trust.json`.
-*   Credential stores & automatic environment variable seeding (`os.environ`).
-*   Configuring reasoning thinking levels and token budgets.
-*   Writing silent background debug logs (`log_debug`).
-
-### 🌲 [Module 3: Tree-based Session Manager](03_tree_session_manager.md)
-*   The problem with flat session histories.
-*   How pocket-pi stores conversations as a tree (`id`/`parentId` JSONL).
-*   Walking the path: `get_path_to_root()` and chronology.
-*   Integrating **Session Compaction**: Parsing `CompactionEntry` records, summary injections, and prunings.
-
-### 🛠️ [Module 4: Unified File, Bash & Search Tools](04_unified_tool_suite.md)
-*   Designing safe, robust tools for LLMs.
-*   `read_file` offset-based line slicing, and `write_file`.
-*   `execute_bash` with outputs limits, exit codes, and temp logs.
-*   `web_search` using the Tavily Rest API.
-*   **The Masterpiece**: Porting the original `pi` `edit` tool (fuzzy matching, char normalization, reverse substitutions, and carriage line preservation).
-
-### 🧠 [Module 5: Workflow Nodes & Context Pruners](05_agent_nodes_orchestration.md)
-*   Subclassing `pocketflow.Node`.
-*   Interactive input loop using `prompt_toolkit` (completers, autocomplete start-of-line locks).
-*   Implementing slash commands (`/new`, `/login`, `/resume`, `/model`, `/session`, `/compact`, `/help`, `/quit`).
-*   **Prompt Engineering & Bias Defeat**: Dynamic contextual tool-pruners and non-contradictory prompts.
-*   Beautiful TUI rendering: Soft-grey reasoning processes and bold green text boxes.
-
-### 🔗 [Module 6: Graph Wiring & App Bootstrapping](06_wiring_and_running.md)
-*   Declaratively writing the state machine in `flow.py`.
-*   Cycle connections: Why `ExecutorNode` loops back to `PlannerNode`!
-*   Initializing resources and launching the loop in `main.py`.
-*   Running, syncing, and installing CLI packages using `uv`.
+A step-by-step developer tutorial tracing coding bounds, component scopes, and wiring constraints:
+1. 📑 **[Module 1: PocketFlow Core Abstractions](01_pocketflow_basics.md)**
+   - Understanding State-Machine Workflows.
+   - Nodes (`prep`, `exec`, `post`), Flows, and central Shared State.
+2. ⚙️ **[Module 2: Config & Project Trust Manager](02_configuration_manager.md)**
+   - Hierarchical settings, JSON configurations, environment variable seeding.
+   - Secure directory execution and `trust.json` boundaries.
+3. 🌲 **[Module 3: Tree-based Session Manager](03_tree_session_manager.md)**
+   - Moving from flat message arrays to conversational parent-child JSONL trees.
+   - Dynamic context slicing, walking history to root, and context compaction.
+4. 🛠️ **[Module 4: Unified File, Bash & Search Tools](04_unified_tool_suite.md)**
+   - Slice-based file reading, safe bash limits, and Tavily REST searches.
+   - Porting the resilient fuzzy-patching search-and-replace `edit` tool.
+5. 🧠 **[Module 5: Workflow Nodes & Context Pruners](05_agent_nodes_orchestration.md)**
+   - Interfacing with `prompt_toolkit` (completers, start-of-line lock).
+   - Tool-pruners, prompt guidelines, and TUI presentation formatting with `rich`.
+6. 🔗 **[Module 6: Graph Wiring & App Bootstrapping](06_wiring_and_running.md)**
+   - Graph wiring loops (`ExecutorNode` cyclic routing to `PlannerNode` in `flow.py`).
+   - Launching environment bootstrap scripts using `uv`.
 
 ---
 
-## 🏗️ Target Architecture Flowchart
+### 🎨 Track 2: System Features & Analogy-Driven Architect's Guide
+*Recommended for: System architects looking for high-level diagrams, execution sequences, and industry-standard analogues.*
 
-During this course, we will trace and build this exact cyclic state-machine diagram:
+An architectural guidebook presenting 14 functional areas, fully illustrated with visual **Mermaid sequence diagrams** and technical analogies (e.g. databases, compiler pipelines):
+*   📘 **[Start Here: Track 2 Directory Portal](tutorial_agent_features/00_index.md)**
+*   *Key Chapters:*
+    - **Chapter 1**: `uv`-based Bootstrapping
+    - **Chapter 2**: PocketFlow State-Machine Framework
+    - **Chapter 3**: Shared State (Context Store)
+    - **Chapter 5**: ConfigManager (Hierarchical Configuration)
+    - **Chapter 6**: Tree-Based Session Manager (log branching)
+    - **Chapter 11**: Fuzzy-Matching Line Editor (`edit` tool)
+    - **Chapter 13**: Security Gatekeeper (permissions.json checkpointing)
+    - **Chapter 14**: Project Trust Boundary
+
+---
+
+### 💻 Track 3: Code-Level Core Abstractions Deep-Dive
+*Recommended for: Core maintainers and visiting AI agents wanting to inspect class properties, file mappings, and function signatures.*
+
+A code-first analysis of pocket-pi's physical Python files and bindings, focused on logical roles and specific APIs:
+*   📗 **[Start Here: Track 3 Directory Portal](Abstractions/00_index.md)**
+*   *Key Sections:*
+    - **Section 1**: Shared State (`shared.py`)
+    - **Section 2**: Workflow Node (`node.py`)
+    - **Section 3**: Workflows and Routing (`flow.py`)
+    - **Section 4**: Log Tree databases (`session.py`)
+    - **Section 5**: Resilient Modification Engine (`edit.py` algorithms)
+    - **Section 6**: Permissions checking policies (`permissions_gate`)
+    - **Section 8**: Prefix-based cached prompts and budget optimization
+
+---
+
+## 🏗️ Core Application State Graph
+
+Regardless of the learning path you choose, all three pathways converge on this central cyclic state-machine loop that drives the Pocket-Pi agent shell:
 
 ```mermaid
 flowchart TD
@@ -97,17 +124,4 @@ flowchart TD
 
 ---
 
-## 📖 Self-Documenting Design & Progressive Disclosure
-
-An advanced agentic architecture should understand itself. To support developers and visiting AI engines, Pocket-Pi ships with a structured **progressive disclosure documentation** framework located in the `/docs` directory. 
-
-This model segments architectural knowledge sequentially to prevent cognitive overload:
-- **Concept Discovery**: Users start at [`docs/index.md`](../docs/index.md) to locate core components.
-- **Workflow Deep-Dives**: Detailed processes are discussed chronologically in specialized subtopics like [`docs/permissions.md`](../docs/permissions.md) and [`docs/skills.md`](../docs/skills.md).
-- **Physical Schemas**: Low-level JSON structures, folder paths, and log behaviors are localized in files such as [`docs/logging.md`](../docs/logging.md).
-
-Leveraging this structured self-documentation ensures any coding assistant working on Pocket-Pi can immediately retrieve precise system details and maintain context-aware consistency during extensions!
-
----
-
-Get your favorite text editor ready, and let's jump into **[Module 1: PocketFlow Core Abstractions](01_pocketflow_basics.md)**! 🚀
+*Get your favorite development environment ready, select your optimal starting track above, and dive in!* 🚀

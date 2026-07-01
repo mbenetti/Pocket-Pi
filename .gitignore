@@ -18,5 +18,9 @@ wheels/
 .env.*
 
 # Local Agent config and permissions
-.pocket_pi/settings.json
-.pocket_pi/permissions.json
+**/.pocket_pi/
+.zennotes/
+archive/
+quick/
+trash/
+.obsidian/
