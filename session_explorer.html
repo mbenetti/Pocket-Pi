@@ -492,31 +492,326 @@
           "model": "active_model"
         },
         "timestamp": 1782906482.339759
-      }
-    ],
-    "leaves": [
+      },
       {
         "type": "message",
-        "id": "de7474ae-5a8e-48dc-a9f1-44b13bb7a53a",
-        "parentId": "46401829-62b3-4775-b51a-1d89b22eb128",
+        "id": "c8adeae9-48f6-4e4c-93da-ce4b33d43aea",
+        "parentId": "de7474ae-5a8e-48dc-a9f1-44b13bb7a53a",
+        "message": {
+          "role": "user",
+          "timestamp": 1782906998286,
+          "content": "Can you tell me the time?"
+        },
+        "timestamp": 1782906998.286593
+      },
+      {
+        "type": "message",
+        "id": "9e19cdcb-ebbb-48bd-bcbb-a8674673f12f",
+        "parentId": "c8adeae9-48f6-4e4c-93da-ce4b33d43aea",
         "message": {
           "role": "assistant",
-          "timestamp": 1782906482339,
+          "timestamp": 1782907000577,
           "content": [
             {
               "type": "text",
-              "text": "Hello! How can I help you today?"
+              "text": "I don't have access to the current time. I can see the date is **July 1, 2026** from my context, but I don't have a tool to check the exact time.\n\nYou can try:\n\n- `date` command in terminal\n- `nix datetime` if you have the Nix package manager\n- Just check your system clock!\n\nWhat else can I help you with?"
             }
           ],
           "provider": "pocket_pi",
           "model": "active_model"
         },
-        "timestamp": 1782906482.339759
+        "timestamp": 1782907000.577774
+      },
+      {
+        "type": "message",
+        "id": "f5d6f21e-f2f9-4f77-b0ea-1b551dcf480d",
+        "parentId": "9e19cdcb-ebbb-48bd-bcbb-a8674673f12f",
+        "message": {
+          "role": "user",
+          "timestamp": 1782907006457,
+          "content": "use bash"
+        },
+        "timestamp": 1782907006.4573839
+      },
+      {
+        "type": "message",
+        "id": "4db498a5-97b0-49c8-9a83-5bb23eb43f9c",
+        "parentId": "f5d6f21e-f2f9-4f77-b0ea-1b551dcf480d",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782907013175,
+          "content": [
+            {
+              "type": "toolCall",
+              "id": "call_are1lup8",
+              "name": "bash",
+              "arguments": {
+                "command": "date"
+              }
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782907013.175483
+      },
+      {
+        "type": "message",
+        "id": "b680f8b8-770b-4a28-9787-69777c791f49",
+        "parentId": "4db498a5-97b0-49c8-9a83-5bb23eb43f9c",
+        "message": {
+          "role": "toolResult",
+          "timestamp": 1782907016913,
+          "content": [
+            {
+              "type": "text",
+              "text": "--- [Bash Output (Exit Code: 0)] ---\nWed Jul  1 13:56:56 CEST 2026\n"
+            }
+          ],
+          "toolCallId": "call_are1lup8",
+          "toolName": "bash"
+        },
+        "timestamp": 1782907016.913059
+      },
+      {
+        "type": "message",
+        "id": "f598d6f4-27ac-483a-8732-839d2b54e38f",
+        "parentId": "b680f8b8-770b-4a28-9787-69777c791f49",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782907026435,
+          "content": [
+            {
+              "type": "text",
+              "text": "The current time is **Wednesday, July 1, 2026 at 13:56:56 CEST**."
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782907026.435144
+      },
+      {
+        "type": "message",
+        "id": "b2c6995e-c11c-4b35-9708-e88275b5a3b7",
+        "parentId": "f598d6f4-27ac-483a-8732-839d2b54e38f",
+        "message": {
+          "role": "user",
+          "timestamp": 1782907069141,
+          "content": "can you check on internet the time?"
+        },
+        "timestamp": 1782907069.141563
+      },
+      {
+        "type": "message",
+        "id": "36863493-74dd-4d7a-b4fb-20b476fa5ac6",
+        "parentId": "b2c6995e-c11c-4b35-9708-e88275b5a3b7",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782907073644,
+          "content": [
+            {
+              "type": "toolCall",
+              "id": "call_x0d4cit9",
+              "name": "bash",
+              "arguments": {
+                "command": "curl -s http://worldtimeapi.org/api/ip"
+              }
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782907073.644659
+      },
+      {
+        "type": "message",
+        "id": "c0398323-a68e-45ae-b57c-971852075ee7",
+        "parentId": "36863493-74dd-4d7a-b4fb-20b476fa5ac6",
+        "message": {
+          "role": "toolResult",
+          "timestamp": 1782907084644,
+          "content": [
+            {
+              "type": "text",
+              "text": "--- [Bash Output (Exit Code: 56)] ---\n"
+            }
+          ],
+          "toolCallId": "call_x0d4cit9",
+          "toolName": "bash"
+        },
+        "timestamp": 1782907084.644795
+      },
+      {
+        "type": "message",
+        "id": "539e0265-b556-4fc8-91aa-1edefdbd7136",
+        "parentId": "c0398323-a68e-45ae-b57c-971852075ee7",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782907086883,
+          "content": [
+            {
+              "type": "toolCall",
+              "id": "call_j4kzbx9f",
+              "name": "bash",
+              "arguments": {
+                "command": "curl -s --max-time 5 https://worldtimeapi.org/api/timezone/Europe/Rome"
+              }
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782907086.883751
+      },
+      {
+        "type": "message",
+        "id": "bd70ba93-5c33-4aac-8399-0afd8cf38806",
+        "parentId": "539e0265-b556-4fc8-91aa-1edefdbd7136",
+        "message": {
+          "role": "toolResult",
+          "timestamp": 1782907087020,
+          "content": [
+            {
+              "type": "text",
+              "text": "--- [Bash Output (Exit Code: 35)] ---\n"
+            }
+          ],
+          "toolCallId": "call_j4kzbx9f",
+          "toolName": "bash"
+        },
+        "timestamp": 1782907087.020502
+      },
+      {
+        "type": "message",
+        "id": "d1869e33-f68c-4272-9db5-0a384e7330df",
+        "parentId": "bd70ba93-5c33-4aac-8399-0afd8cf38806",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782907088789,
+          "content": [
+            {
+              "type": "toolCall",
+              "id": "call_bnnk57la",
+              "name": "bash",
+              "arguments": {
+                "command": "curl -s --max-time 5 ifconfig.me"
+              }
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782907088.789078
+      },
+      {
+        "type": "message",
+        "id": "5198f77b-3c47-42e7-ad5b-e65d3260d87c",
+        "parentId": "d1869e33-f68c-4272-9db5-0a384e7330df",
+        "message": {
+          "role": "toolResult",
+          "timestamp": 1782907089021,
+          "content": [
+            {
+              "type": "text",
+              "text": "--- [Bash Output (Exit Code: 0)] ---\n2003:e7:ff04:fd89:c1ca:c8e:116c:76dc"
+            }
+          ],
+          "toolCallId": "call_bnnk57la",
+          "toolName": "bash"
+        },
+        "timestamp": 1782907089.021455
+      },
+      {
+        "type": "message",
+        "id": "ab017db5-299f-4726-98e7-836e78fd54da",
+        "parentId": "5198f77b-3c47-42e7-ad5b-e65d3260d87c",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782907090677,
+          "content": [
+            {
+              "type": "toolCall",
+              "id": "call_dtpuard7",
+              "name": "bash",
+              "arguments": {
+                "command": "curl -s --max-time 5 http://api.ipapi.com/timezone?access_key=no"
+              }
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782907090.6776042
+      },
+      {
+        "type": "message",
+        "id": "5d75db1a-70eb-433e-822a-3ac936619329",
+        "parentId": "ab017db5-299f-4726-98e7-836e78fd54da",
+        "message": {
+          "role": "toolResult",
+          "timestamp": 1782907092662,
+          "content": [
+            {
+              "type": "text",
+              "text": "--- [Bash Output (Exit Code: 0)] ---\n{\n  \"success\": false,\n  \"error\": {\n    \"code\": 101,\n    \"type\": \"invalid_access_key\",\n    \"info\": \"You have not supplied a valid API Access Key. [Technical Support: support@apilayer.com]\"\n  }\n}\n"
+            }
+          ],
+          "toolCallId": "call_dtpuard7",
+          "toolName": "bash"
+        },
+        "timestamp": 1782907092.6623979
+      },
+      {
+        "type": "message",
+        "id": "e32710d9-5f4d-4521-af1a-980394c47fba",
+        "parentId": "5d75db1a-70eb-433e-822a-3ac936619329",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782907094224,
+          "content": [
+            {
+              "type": "toolCall",
+              "id": "call_4mkg844v",
+              "name": "bash",
+              "arguments": {
+                "command": "ntpdate -q pool.ntp.org 2>&1 || timedatectl"
+              }
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782907094.224274
+      }
+    ],
+    "leaves": [
+      {
+        "type": "message",
+        "id": "e32710d9-5f4d-4521-af1a-980394c47fba",
+        "parentId": "5d75db1a-70eb-433e-822a-3ac936619329",
+        "message": {
+          "role": "assistant",
+          "timestamp": 1782907094224,
+          "content": [
+            {
+              "type": "toolCall",
+              "id": "call_4mkg844v",
+              "name": "bash",
+              "arguments": {
+                "command": "ntpdate -q pool.ntp.org 2>&1 || timedatectl"
+              }
+            }
+          ],
+          "provider": "pocket_pi",
+          "model": "active_model"
+        },
+        "timestamp": 1782907094.224274
       }
     ],
     "activeModel": "Unknown Model",
     "activeProvider": "Unknown Provider",
-    "size": 831,
+    "size": 7014,
     "timestamp": 1782906476.46344
   },
   "1782901428_c3d63061.jsonl": {
@@ -782,13 +1077,10 @@
 
             // Initialize App & Check for Saved Handle
             window.addEventListener("DOMContentLoaded", async () => {
-                if (
-                    EMBEDDED_SESSIONS &&
-                    Object.keys(EMBEDDED_SESSIONS).length > 0
-                ) {
-                    // Hide picker buttons since we have embedded data
+                if (EMBEDDED_SESSIONS && Object.keys(EMBEDDED_SESSIONS).length > 0) {
                     pickerBtn.classList.add("hidden");
                     fallbackLabel.classList.add("hidden");
+                    syncSessionBtn.classList.add("hidden"); // No sync needed for static embedded data
 
                     state.sessions = EMBEDDED_SESSIONS;
                     renderSessionList();
@@ -801,11 +1093,11 @@
                     }
 
                     welcomePanel.innerHTML = `
-                        <i class="fa-solid fa-circle-check text-6xl text-brand-green opacity-40"></i>
-                        <div class="text-center max-w-md">
-                            <h3 class="text-lg font-bold text-white mb-1">Sessions Loaded Successfully</h3>
-                            <p class="text-sm text-brand-textMuted">Select a session from the sidebar to view the timeline.</p>
-                        </div>`;
+                    <i class="fa-solid fa-circle-check text-6xl text-brand-green opacity-40"></i>
+                    <div class="text-center max-w-md">
+                        <h3 class="text-lg font-bold text-white mb-1">Sessions Loaded Successfully</h3>
+                        <p class="text-sm text-brand-textMuted">Select a session from the sidebar to view the timeline.</p>
+                    </div>`;
                     return;
                 }
 
@@ -814,6 +1106,7 @@
                     // Fallback to standard webkitdirectory input
                     pickerBtn.classList.add("hidden");
                     fallbackLabel.classList.remove("hidden");
+                    syncSessionBtn.classList.add("hidden"); // Sync requires Directory Picker API
                     return;
                 }
 
@@ -1617,13 +1910,40 @@
                             body.appendChild(textDiv);
                         }
 
-                        // Render Tool Calls from content blocks
-                        const toolCallBlocks = entry.message.content && Array.isArray(entry.message.content)
-                            ? entry.message.content.filter(b => b.type === "toolCall")
-                            : [];
+                        // Extract tool calls from both content blocks and standard tool_calls array
+                        let toolCalls = [];
+                        if (entry.message.tool_calls && Array.isArray(entry.message.tool_calls)) {
+                            toolCalls = entry.message.tool_calls.map(tc => {
+                                let args = {};
+                                try {
+                                    args = typeof tc.arguments === 'string' ? JSON.parse(tc.arguments) : (tc.function ? (typeof tc.function.arguments === 'string' ? JSON.parse(tc.function.arguments) : tc.function.arguments) : tc.arguments);
+                                } catch (e) {
+                                    args = tc.arguments || {};
+                                }
+                                return {
+                                    name: tc.name || (tc.function ? tc.function.name : "tool"),
+                                    arguments: args
+                                };
+                            });
+                        } else if (entry.message.content && Array.isArray(entry.message.content)) {
+                            toolCalls = entry.message.content
+                                .filter(b => b.type === "toolCall")
+                                .map(tc => {
+                                    let args = {};
+                                    try {
+                                        args = typeof tc.arguments === 'string' ? JSON.parse(tc.arguments) : tc.arguments;
+                                    } catch (e) {
+                                        args = tc.arguments || {};
+                                    }
+                                    return {
+                                        name: tc.name,
+                                        arguments: args
+                                    };
+                                });
+                        }
 
-                        if (toolCallBlocks.length > 0) {
-                            toolCallBlocks.forEach((tc) => {
+                        if (toolCalls.length > 0) {
+                            toolCalls.forEach((tc) => {
                                 const tcDiv = document.createElement("div");
                                 tcDiv.className =
                                     "bg-purple-500/5 border border-purple-500/20 rounded-lg p-4 mt-4 space-y-2";
