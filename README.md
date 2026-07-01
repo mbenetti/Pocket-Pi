@@ -130,6 +130,21 @@ You can also execute raw shell commands directly on your machine without trigger
 
 ---
 
+## 📊 Session Observability & Debugging Dashboard
+
+Pocket-Pi includes a completely self-contained, serverless **Session Log Explorer** (`session_explorer.html`) to visually inspect, search, and debug your conversation logs and tool execution traces.
+
+![Pocket-Pi Observability Dashboard](assets/observability.png)
+
+### Key Features:
+- **Compact & Full Layouts**: Toggle between a detailed message timeline and a scan-friendly, single-line log row view.
+- **Branch-Aware Tree Navigation**: Reconstruct and explore any conversation branch (leaf) chronologically.
+- **Advanced Filtering**: Filter entries by role (User, Assistant, Tool Calls, Bash Executions) or search text content dynamically.
+- **Real-Time Sync**: Click **Sync File** to instantly reload the active session with any new entries in real-time.
+- **Zero Server Setup**: Pre-load all your sessions instantly by running `python3 update_explorer.py` and opening `session_explorer.html` in any browser!
+
+---
+
 ## 📂 Codebase File Map
 
 - **`pocket_pi/config.py`**: Settings loader (`settings.json`), proxy overrides, project trust registry.
