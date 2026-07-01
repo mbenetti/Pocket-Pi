@@ -164,6 +164,7 @@ class ConsoleInputNode(Node):
             "/quit",
             "/exit",
             "/clear",
+            "/reset",
             "/skills:",
             "/skill:",
         ]
@@ -264,6 +265,8 @@ class ConsoleInputNode(Node):
                 return "new"
             elif cmd == "/clear":
                 return "clear"
+            elif cmd == "/reset":
+                return "reset"
             elif cmd == "/login":
                 return "login"
             elif cmd.startswith("/skill") or cmd.startswith("/skills"):
@@ -362,6 +365,73 @@ class ClearNode(Node):
         return "loop"
 
 
+class ResetNode(Node):
+    """Permanently deletes all project session files and initializes a fresh container state."""
+
+    def prep(self, shared):
+        return {
+            "session_dir": shared["session"].project_session_dir,
+            "cwd": str(shared["session"].cwd),
+        }
+
+    def exec(self, data):
+        session_dir = Path(data["session_dir"])
+        if not session_dir.exists():
+            console.print(
+                "[yellow]No session directory exists yet for this project.[/yellow]"
+            )
+            return False
+
+        jsonl_files = list(session_dir.glob("*.jsonl"))
+        if not jsonl_files:
+            console.print(
+                "[yellow]No past log session files found for this project.[/yellow]"
+            )
+            return False
+
+        console.print(
+            Panel(
+                f"[bold red]⚠️  WARNING: PERMANENT WIPE OF ALL PROJECT HISTORY  ⚠️[/bold red]\n\n"
+                f"This will permanently delete all [bold yellow]{len(jsonl_files)}[/bold yellow] session file(s) for this project workspace.\n"
+                f"Target Directory: [cyan]{session_dir}[/cyan]\n\n"
+                f"This direct file-system removal [bold red]CANNOT BE UNDONE[/bold red].",
+                title="[bold red]Reset Project Sessions[/bold red]",
+                border_style="red",
+            )
+        )
+
+        try:
+            choice = input(
+                'Type uppercase "RESET" to confirm execution, or press Enter to cancel: '
+            ).strip()
+            if choice == "RESET":
+                # Deleting files
+                for f in jsonl_files:
+                    try:
+                        f.unlink()
+                    except Exception as e:
+                        console.print(f"[red]Error deleting {f.name}: {e}[/red]")
+                return True
+        except Exception as e:
+            console.print(f"[red]Input prompted aborted: {e}[/red]")
+        return False
+
+    def post(self, shared, prep_res, deleted_any):
+        if deleted_any:
+            # Hot reload fresh SessionManager
+            cwd = prep_res["cwd"]
+            shared["session"] = SessionManager(cwd=cwd)
+            console.print(
+                "[bold green]✔ All past logs have been successfully nuked and a fresh session initialized![/bold green]"
+            )
+        else:
+            console.print(
+                "[yellow]Reset action aborted. Past logs remain unchanged.[/yellow]"
+            )
+        print_session_info(shared)
+        return "loop"
+
+
 class HelpNode(Node):
     """displays lists of command shortcuts."""
 
@@ -371,11 +441,11 @@ class HelpNode(Node):
     def exec(self, arg):
         help_text = """
 ### Available Slash Commands
-
 | Command | Action / Description |
 |---|---|
 | `/new` | Start a completely empty, fresh coding session |
 | `/clear` | Reset active conversation chat log memory to a clean slate, preserving session identity |
+| `/reset` | Permanently delete all session file history logs specifically for this project |
 | `/login` | Interactively setup provider credentials (persisted in global settings) |
 | `/resume` | Interactively select and load a past log session |
 | `/model` | Switch model providers or specific model IDs |
