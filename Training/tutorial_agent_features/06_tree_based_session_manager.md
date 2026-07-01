@@ -43,15 +43,12 @@ In this tree, the discussion leading to "Optimized B" remains preserved on its o
 
 Pocket-Pi's sessions are persisted to disk using a standard, line-delimited JSON format, commonly known as **JSONL**. Each line in the session file is a self-contained JSON object representing an "entry" in the conversation tree. This design is highly robust and fault-tolerant, similar to how transactional databases use Write-Ahead Logs (WAL) or append-only file systems. If Pocket-Pi crashes, the session file isn't corrupted; new entries are simply appended atomistically.
 
-Session files are stored in a structured directory based on the project's current working directory (CWD), ensuring isolation between different projects:
+Session files are stored in a structured directory locally within the project's `.pocket_pi/sessions` directory, ensuring isolation between different projects:
 
 ```python
 # From pocket_pi/session.py
 self.cwd = Path(cwd).resolve()
-self.session_dir = Path("~/.pocket_pi/agent/sessions").expanduser()
-# Replace '/' with '-' for unique session directories per project
-cwd_dir_name = "--" + str(self.cwd).replace("/", "-").replace("\\", "-").strip("-") + "--"
-self.project_session_dir = self.session_dir / cwd_dir_name
+self.project_session_dir = self.cwd / ".pocket_pi" / "sessions"
 ```
 This ensures that `Pocket-Pi` maintains distinct session histories for different code repositories or working directories, analogous to how separate Git repositories manage their `.git` folders independently.
 

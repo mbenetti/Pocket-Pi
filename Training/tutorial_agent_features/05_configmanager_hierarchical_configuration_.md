@@ -147,7 +147,7 @@ def log_debug(message: str):
     if not _LOGGING_ENABLED:
         return
         
-    log_dir = Path("~/.pocket_pi/agent").expanduser()
+    log_dir = Path(".pocket_pi")
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / "pocket-pi-debug.log"
     import time
@@ -158,7 +158,7 @@ def log_debug(message: str):
     except Exception:
         pass
 ```
-This `log_debug` function writes messages to `~/.pocket_pi/agent/pocket-pi-debug.log` only if logging is explicitly enabled in the configuration (`enableLogging: true`). This is analogous to how industrial control systems or distributed microservices might write detailed internal state to separate log files (e.g., using `log4j` or `logback`) to avoid polluting the operational console. This allows for live monitoring of the agent's internal thought process and transitions without interfering with the interactive user experience.
+This `log_debug` function writes messages to `.pocket_pi/pocket-pi-debug.log` only if logging is explicitly enabled in the configuration (`enableLogging: true`). This is analogous to how industrial control systems or distributed microservices might write detailed internal state to separate log files (e.g., using `log4j` or `logback`) to avoid polluting the operational console. This allows for live monitoring of the agent's internal thought process and transitions without interfering with the interactive user experience.
 
 ## Accessing Configuration: Properties and Utility Methods
 

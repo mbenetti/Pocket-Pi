@@ -129,7 +129,7 @@ To solve this, pocket-pi implements **Dynamic Silent Logging** via `log_debug`:
 
 ```python
 def log_debug(message: str):
-    log_dir = Path("~/.pocket_pi/agent").expanduser()
+    log_dir = Path(".pocket_pi")
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / "pocket-pi-debug.log"
     
@@ -141,9 +141,9 @@ def log_debug(message: str):
         pass
 ```
 
-Instead of spamming stdout, nodes write background transition logs to `~/.pocket_pi/agent/pocket-pi-debug.log`. You can observe the flow live in a separate terminal:
+Instead of spamming stdout, nodes write background transition logs to `.pocket_pi/pocket-pi-debug.log`. You can observe the flow live in a separate terminal:
 ```bash
-tail -f ~/.pocket_pi/agent/pocket-pi-debug.log
+tail -f .pocket_pi/pocket-pi-debug.log
 ```
 
 ---

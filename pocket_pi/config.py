@@ -299,13 +299,13 @@ class ConfigManager:
 
 def log_debug(message: str):
     """
-    Log background debug messages to ~/.pocket_pi/agent/pocket-pi-debug.log
+    Log background debug messages to .pocket_pi/pocket-pi-debug.log
     """
     global _LOGGING_ENABLED
     if not _LOGGING_ENABLED:
         return
 
-    log_dir = Path("~/.pocket_pi/agent").expanduser()
+    log_dir = Path(".pocket_pi")
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / "pocket-pi-debug.log"
     import time
