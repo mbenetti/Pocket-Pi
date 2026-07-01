@@ -1598,8 +1598,15 @@
                     session.displayName;
                 document.getElementById("active-session-id").innerText =
                     `File: ${session.filename}`;
-                document.getElementById("active-session-model").innerHTML =
-                    `<i class="fa-solid fa-brain mr-1.5 text-purple-400"></i> ${session.activeProvider}/${session.activeModel}`;
+
+                const modelSpan = document.getElementById("active-session-model");
+                if (session.activeModel && session.activeModel !== "Unknown Model" && session.activeModel !== "active_model") {
+                    modelSpan.classList.remove("hidden");
+                    modelSpan.innerHTML = `<i class="fa-solid fa-brain mr-1.5 text-purple-400"></i> ${session.activeProvider}/${session.activeModel}`;
+                } else {
+                    modelSpan.classList.add("hidden");
+                }
+
                 document.getElementById("active-session-date").innerHTML =
                     `<i class="fa-solid fa-calendar-day mr-1.5 text-blue-400"></i> ${new Date(session.timestamp * 1000).toLocaleString()}`;
 
