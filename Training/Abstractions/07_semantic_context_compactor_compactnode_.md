@@ -14,24 +14,24 @@ To understand why simple sliding window algorithms fail, look at how modern stor
 
 ```mermaid
 graph TD
-    subgraph Raw Append Ledger [JSONL Memory Active Path]
+    subgraph RawAppendLedger [JSONL Memory Active Path]
         T1[Turn 1: File Read Output] --> T2[Turn 2: Bash Trace Error]
         T2 --> T3[Turn 3: Fix Applied]
         T3 --> T4[Turn 4: Current Code Edit]
     end
 
-    subgraph CompactNode [Compaction Engine Block]
+    subgraph CompNode [Compaction Engine Block]
         direction TB
         SST[1. Target Historical Segments] --> SUM[2. Compile Semantic Summary]
         SUM --> BDY[3. Set Barrier Keep ID]
     end
 
-    subgraph Pruned Runtime Payload [Consolidated LLM Context]
+    subgraph PrunedPayload [Consolidated LLM Context]
         CS[Consolidated Summary Entry] --> T4
     end
 
-    Raw Append Ledger -->|Manual or Auto-Triggered| CompactNode
-    CompactNode -->|Prunes Preceding Nodes| Pruned Runtime Payload
+    RawAppendLedger -->|Manual or Auto-Triggered| CompNode
+    CompNode -->|Prunes Preceding Nodes| PrunedPayload
 ```
 
 This is precisely how our `CompactNode` operates. Instead of discarding old history using a raw sliding window (which risks deleting vital context, like previous file paths or user requests), Pocket-Pi consolides older turns into a single high-density summary. It inserts this summary as a checkpoint block, moving the start of active parsing forward to a newly marked target index.
