@@ -944,6 +944,12 @@ Available tools:
 
 Guidelines:
 - Use bash for file operations like ls, rg, find
+- Use read to examine files instead of running bash commands like cat or sed.
+- Use edit for precise changes (edits[].oldText must match exactly)
+- When changing multiple separate locations in one file, use one edit call with multiple entries in edits[] instead of multiple sequential edit calls
+- Each edits[].oldText is matched against the original file, not after earlier edits are applied. Do not emit overlapping or nested edits. Merge nearby changes into one edit.
+- Keep edits[].oldText as small as possible while still being unique in the file. Do not pad with large unchanged regions.
+- Use write only for new files or complete rewrites.
 - When searching the web, always prioritize a single, broad, general query first. Do not make multiple sequential specific searches or pre-restrict query scopes with narrow dates/sub-events.
 - Be concise in your responses
 - Show file paths clearly when working with files
@@ -966,7 +972,7 @@ Current Date: {current_date}
             except Exception as e:
                 log_debug(f"[PlannerNode] Failed to read AGENT.md: {e}")
 
-        session_id = shared["session"].get_session_name()
+        session_id = shared["session"].get_session_id()
 
         return {
             "config": shared["config"],

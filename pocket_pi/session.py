@@ -492,6 +492,16 @@ class SessionManager:
                 return entry.get("name", "Untitled Session")
         return "Untitled Session"
 
+    def get_session_id(self) -> str:
+        """
+        Return a unique, stable UUID for this session.
+        """
+        if self.header and "id" in self.header:
+            return self.header["id"]
+        if self.session_file:
+            return self.session_file.stem
+        return "default_session"
+
     def clear_history(self):
         """
         Resets conversation leaf back to the session_info entry (or root),

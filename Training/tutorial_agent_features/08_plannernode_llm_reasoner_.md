@@ -53,7 +53,7 @@ The `prep` phase for the `PlannerNode` is where crucial contextual information i
         else:
             system_prompt = f"Current Working Directory: {cwd_str} ... You are pocket-pi ... a helpful and friendly assistant. Answer ... concisely using direct conversational text."
         
-        session_id = shared["session"].get_session_name()
+        session_id = shared["session"].get_session_id()
         
         return {
             "config": shared["config"],

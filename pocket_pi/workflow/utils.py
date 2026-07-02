@@ -224,14 +224,18 @@ def _call_openai(
         "messages": openai_messages,
     }
     if provider == "openrouter":
-        params["extra_body"] = {"cache_control": {"type": "ephemeral"}}
+        params["extra_body"] = {}
+        if "claude" in model.lower():
+            params["extra_body"]["cache_control"] = {"type": "ephemeral"}
         if session_id:
             params["extra_body"]["session_id"] = session_id
-        # Include OpenRouter rank and branding headers
+        # Include OpenRouter rank and branding headers, plus x-session-id for sticky routing
         params["extra_headers"] = {
             "HTTP-Referer": "https://github.com/mbenetti/Pocket-Pi",
             "X-Title": "pocket-pi",
         }
+        if session_id:
+            params["extra_headers"]["x-session-id"] = session_id
 
     if formatted_tools:
         params["tools"] = formatted_tools
